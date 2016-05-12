@@ -1,0 +1,10 @@
+void CON_RegisterVars( void );
+void CON_Start( void );
+void CON_End( void );
+void CON_Init( void );
+void CON_Done( void );
+void CON_OnText( const char *text );
+bool_t CON_OnKeyboard( int code, bool_t down );
+void CON_Toggle( bool_t fullscreen );
+int CON_Printf( const char *format, ... );
+void CON_Frame( void );
