@@ -20,8 +20,8 @@ int main( int argc, char *argv[] ) {
     // RegisterVars block comes before Init
     CON_RegisterVars();
 
-	// overwrite vars everywhere
-	VAR_ReadCfg();
+    // overwrite vars everywhere
+    VAR_ReadCfg();
 
     // the Init block comes after the vars are read and overwritten
     R_Init();
@@ -34,7 +34,7 @@ int main( int argc, char *argv[] ) {
     do {
         quit = X_ProcessEvents();
         R_FrameBegin( colorrgb( 0.1f, 0.1f, 0.1f ) );
-		CON_Frame();
+        CON_Frame();
         R_FrameEnd();
         SYS_SampleTime();
     } while ( ! quit );
