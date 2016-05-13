@@ -1,5 +1,4 @@
 #include "host.h"
-#include "zps2_public.h"
 
 int main( int argc, char *argv[] ) {
     if ( SDL_InitSubSystem( SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_AUDIO ) < 0 ) {
@@ -25,7 +24,6 @@ int main( int argc, char *argv[] ) {
 
     // the Init block comes after the vars are read and overwritten
     R_Init();
-    TTS_Init();
 
     // the Start block comes after the renderer is initialized
     CON_Start();
