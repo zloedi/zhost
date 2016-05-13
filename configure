@@ -13,12 +13,12 @@ def NormalizePath( path ):
 def GetHostLflags( m32 = False ):
     lflags = ""
     if IsWindows():
-        winDir = "3rdparty/"
-        #lflags += " -L" + winDir + "freetype/lib"
+        libsDir = "3rdparty/"
+        #lflags += " -L" + libsDir + "freetype/lib"
         if m32:
-            lflags += " -L" + winDir + "SDL2/lib/x86"
+            lflags += " -L" + libsDir + "SDL2/lib/x86"
         else:
-            lflags += " -L" + winDir + "SDL2/lib/x64"
+            lflags += " -L" + libsDir + "SDL2/lib/x64"
         #lflags += " -lfreetype"
         # keep the order here
         #lflags += " -lmingw32 -lSDL2main -lSDL2 -mwindows"
@@ -33,9 +33,9 @@ def GetHostLflags( m32 = False ):
 def GetHostCflags():
     cflags = ""
     if IsWindows():
-		winDir = "3rdparty/"
-		#cflags += " -I" + winDir + "freetype/include/freetype2/freetype"
-		cflags += " -I" + winDir + "SDL2/include"
+		libsDir = "3rdparty/"
+		#cflags += " -I" + libsDir + "freetype/include/freetype2/freetype"
+		cflags += " -I" + libsDir + "SDL2/include"
 		cflags += " -I 3rdparty"
     else:
         cflags += " `sdl2-config --cflags` `freetype-config --cflags`"
@@ -229,11 +229,7 @@ TARGET_NAME    = "zhost"
 MAKEFILE_DIR   = BASE_DIR
 CODE_DIR       = BASE_DIR
 
-APP_CFLAGS = "-D_FILE_OFFSET_BITS=64\
-    -DEE_LOG_INTERPRETER\
-    -DALLOCATOR_STATIC_SIZE=40\
-    -DALLOCATOR_DYNAMIC_SIZE=4"\
-      + GetHostCflags()
+APP_CFLAGS = GetHostCflags()
 LD_FLAGS = GetHostLflags()
 
 def main():
