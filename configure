@@ -13,7 +13,7 @@ def NormalizePath( path ):
 def GetHostLflags( m32 = False ):
     lflags = ""
     if IsWindows():
-        winDir = "3rdparty/windows/"
+        winDir = "3rdparty/"
         #lflags += " -L" + winDir + "freetype/lib"
         if m32:
             lflags += " -L" + winDir + "SDL2/lib/x86"
@@ -33,7 +33,7 @@ def GetHostLflags( m32 = False ):
 def GetHostCflags():
     cflags = ""
     if IsWindows():
-		winDir = "3rdparty/windows/"
+		winDir = "3rdparty/"
 		#cflags += " -I" + winDir + "freetype/include/freetype2/freetype"
 		cflags += " -I" + winDir + "SDL2/include"
 		cflags += " -I 3rdparty"
