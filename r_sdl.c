@@ -81,6 +81,15 @@ void R_SaveScreenshot() {
     CON_Printf( "R_SaveScreenshot not implemented" );
 }
 
+static void R_PrintRendererInfo()
+{
+    SDL_RendererInfo info;
+    SDL_GetRendererInfo( r_renderer, &info);
+    CON_Printf( " name: %s\n", info.name );
+    CON_Printf( " max texture width: %d\n", info.max_texture_width );
+    CON_Printf( " max texture height: %d\n", info.max_texture_height );
+}
+
 void R_Init() {
     if( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 ) {
         return SYS_ErrorBox( "R_Init: SDL could not initialize video! SDL Error: %s", SDL_GetError() );
@@ -107,6 +116,7 @@ void R_Init() {
     byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
     RI_CreateStaticTexture( whitePixel, 1, 1, 0, 4 );
     CON_Printf( "Renderer initialized.\n" );
+    R_PrintRendererInfo();
 }
 
 void R_FrameBegin( color_t clearColor ) {
