@@ -172,7 +172,12 @@ static void CON_CheckResize( void ) {
     con.bufSize = sz;
     con.bufNumChars = j;
     con.bufPage = j;
-    //CON_Printf( "CON_CheckResize: console resized. Allocated %d bytes.\n", sz );
+    for ( int i = 0; i < CON_MAX_MESSAGES; i++ ) {
+        conMessage_t *msg = &con.messages[i];
+        memset( msg, 0, sizeof( *msg ) );
+        msg->time = -999999999;
+    }
+    printf( "CON_CheckResize: console resized. Allocated %d bytes.\n", sz );
 }
 
 void CON_Frame( void ) {
@@ -244,12 +249,11 @@ void CON_RegisterVars( void ) {
 }
 
 void CON_Init( void ) {
-    con.buf = A_MallocZero( 100 * 100 );
-    con.bufWidth = 100;
-    con.bufSize = 100 * 100;
-    for ( int i = 0; i < CON_MAX_MESSAGES; i++ ) {
-        con.messages[i].time = -999999999;
-    }
+    // put some arbitrary values here so the console is logged
+    // until resize
+    con.bufSize = 10 * 1024;
+    con.buf = A_MallocZero( ( size_t )con.bufSize );
+    con.bufWidth = 256;
     CONL_Init();
     CON_Printf( "Console initialized\n" );
 }
