@@ -14,18 +14,18 @@ static void X_AtExit( void ) {
 }
 
 static void X_ProcessKey( int code, bool_t down ) {
-	// try the console
-	if ( CON_OnKeyboard( code, down ) ) {
-		return;
+    // try the console
+    if ( CON_OnKeyboard( code, down ) ) {
+        return;
     }
-	// GUI widgets
-	//if ( WG_OnKeyboard( code, ch, down ) )
-	//	return;
-	// application specific callback
-	//if ( sys_onKeyCallback( code, ch, down) )
-	//	return;
-	// command key bindings
-	//K_OnKeyboard( code, down );
+    // GUI widgets
+    //if ( WG_OnKeyboard( code, ch, down ) )
+    //  return;
+    // application specific callback
+    //if ( sys_onKeyCallback( code, ch, down) )
+    //  return;
+    // command key bindings
+    //K_OnKeyboard( code, down );
 }
 
 static bool_t X_ProcessEvents( void ) {
