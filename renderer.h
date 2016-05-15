@@ -15,14 +15,15 @@ typedef struct {
 
 extern rInfo_t r_info;
 
-void R_Init( void );
+void R_Init( const char *windowTitle );
 void R_FrameBegin( color_t clearColor );
 void R_FrameEnd( void );
 void R_Done( void );
 void R_SaveScreenshot( void );
 
-// these used to be OpenGL routines
-// st coordinates larger than 1 dont work under SDL
+// FIXME: these used to be OpenGL routines
+// FIXME: st coordinates larger than 1 dont work under SDL
+// FIXME: use scale?
 void R2D_Color( float red, float green, float blue, float alpha );
 void R2D_SolidRect( float x, float y, float width, float height );
 void R2D_DrawPic( float x, float y,

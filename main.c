@@ -110,7 +110,7 @@ int main( int argc, char *argv[] ) {
     VAR_ReadCfg();
 
     // the Init block comes after the vars are read and overwritten
-    R_Init();
+    R_Init( "zhost skeleton" );
 
     // the Start block comes after the renderer is initialized
     CON_Start();

@@ -90,12 +90,12 @@ static void R_PrintRendererInfo()
     CON_Printf( " max texture height: %d\n", info.max_texture_height );
 }
 
-void R_Init() {
+void R_Init( const char *windowTitle ) {
     if( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 ) {
         return SYS_ErrorBox( "R_Init: SDL could not initialize video! SDL Error: %s", SDL_GetError() );
     }
     r_window = SDL_CreateWindow( 
-                "zps2", 
+                windowTitle, 
                 SDL_WINDOWPOS_UNDEFINED, 
                 SDL_WINDOWPOS_UNDEFINED, 
                 1024, 
