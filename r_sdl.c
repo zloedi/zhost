@@ -105,6 +105,7 @@ void R_Init( const char *windowTitle ) {
     if( r_window == NULL ) {
         return SYS_ErrorBox( "Window could not be created! SDL Error: %s", SDL_GetError() );
     }
+    SDL_SetHint( SDL_HINT_RENDER_DRIVER, "opengl" );
     r_renderer = SDL_CreateRenderer( r_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
     if ( r_renderer == NULL ) {
         return SYS_ErrorBox( "Renderer could not be created! SDL Error: %s", SDL_GetError() );

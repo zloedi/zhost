@@ -42,6 +42,10 @@ const char* SYS_PrefsDir( void ) {
 }
 
 void SYS_Init( void ) {
+    if ( SDL_InitSubSystem( SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_AUDIO ) < 0 ) {
+        SYS_ErrorBox( "main: SDL could not initialize! SDL Error: %s", SDL_GetError() );
+    }
+    SYS_SampleTime();
     sys_prefsDir = SDL_GetPrefPath( "zloedi", "zps2" );
 }
 

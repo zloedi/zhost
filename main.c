@@ -88,10 +88,6 @@ static bool_t X_ProcessEvents( void ) {
 }
 
 int main( int argc, char *argv[] ) {
-    if ( SDL_InitSubSystem( SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_AUDIO ) < 0 ) {
-        SYS_ErrorBox( "main: SDL could not initialize! SDL Error: %s", SDL_GetError() );
-    }
-    SYS_SampleTime();
     atexit( X_AtExit );
 
     // allocator before all else
