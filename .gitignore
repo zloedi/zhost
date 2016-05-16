@@ -2,6 +2,8 @@
 *.swo
 *.exe
 *.dll
+zhost_dbg
+zhost
 tags
 Debug/
 Release/
