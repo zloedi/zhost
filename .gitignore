@@ -2,6 +2,7 @@
 *.swo
 *.exe
 *.dll
+tags
 Debug/
 Release/
 Makefile
