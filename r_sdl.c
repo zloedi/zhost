@@ -1,5 +1,8 @@
 #include "host.h"
 
+static varPtr_t r_windowWidth;
+static varPtr_t r_windowHeight;
+
 rInfo_t r_info;
 
 typedef struct {
@@ -90,36 +93,6 @@ static void R_PrintRendererInfo()
     CON_Printf( " max texture height: %d\n", info.max_texture_height );
 }
 
-void R_Init( const char *windowTitle ) {
-    if( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 ) {
-        return SYS_ErrorBox( "R_Init: SDL could not initialize video! SDL Error: %s", SDL_GetError() );
-    }
-    r_window = SDL_CreateWindow( 
-                windowTitle, 
-                SDL_WINDOWPOS_UNDEFINED, 
-                SDL_WINDOWPOS_UNDEFINED, 
-                1024, 
-                1024, 
-                SDL_WINDOW_RESIZABLE  
-            );
-    if( r_window == NULL ) {
-        return SYS_ErrorBox( "Window could not be created! SDL Error: %s", SDL_GetError() );
-    }
-    SDL_SetHint( SDL_HINT_RENDER_DRIVER, "opengl" );
-    r_renderer = SDL_CreateRenderer( r_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
-    if ( r_renderer == NULL ) {
-        return SYS_ErrorBox( "Renderer could not be created! SDL Error: %s", SDL_GetError() );
-    }
-    R_FrameBegin( colBlack );
-    R_FrameEnd();
-    r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
-    // white pixel placeholder at index 0
-    byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
-    RI_CreateStaticTexture( whitePixel, 1, 1, 0, 4 );
-    CON_Printf( "Renderer initialized.\n" );
-    R_PrintRendererInfo();
-}
-
 void R_FrameBegin( color_t clearColor ) {
     SDL_SetRenderDrawColor( r_renderer,
             ( Uint8 )( clearColor.r * 255 ), 
@@ -129,8 +102,18 @@ void R_FrameBegin( color_t clearColor ) {
     SDL_RenderClear( r_renderer );
 }
 
+#define MIN_WINDOW_WIDTH 800
+#define MAX_WINDOW_WIDTH (4*1024)
+#define MIN_WINDOW_HEIGHT 800
+#define MAX_WINDOW_HEIGHT (4*1024)
+
 void R_FrameEnd() {
     SDL_RenderPresent( r_renderer );
+    if ( VAR_Changed( r_windowWidth ) || VAR_Changed( r_windowHeight ) ) {
+        SDL_SetWindowSize( r_window,
+                ( int )Clampf( VAR_Num( r_windowWidth ), MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH ),
+                ( int )Clampf( VAR_Num( r_windowHeight ), MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT ) );
+    }
     int w, h;
     SDL_GetWindowSize( r_window, &w, &h );
     r_info.screenWidth = ( float )w;
@@ -163,3 +146,43 @@ int RI_CreateStaticTexture( const byte *data, int width, int height, riFlags_t f
     CON_Printf( "RI_CreateStaticTexture: created texture. size: %d,%d ; bpp: %d\n", width, height, bytesPerPixel );
     return r_numImages - 1;
 }
+
+void R_RegisterVars( void ) {
+    r_windowWidth = VAR_RegisterHelp( "rWindowWidth", "1024", "Window width on app start" );
+    r_windowHeight = VAR_RegisterHelp( "rWindowHeight", "768", "Window height on app start" );
+}
+
+void R_Init( void ) {
+    R_InitEx( "zhost app" );
+}
+
+void R_InitEx( const char *windowTitle ) {
+    if( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 ) {
+        return SYS_ErrorBox( "R_InitEx: SDL could not initialize video! SDL Error: %s", SDL_GetError() );
+    }
+    r_window = SDL_CreateWindow( 
+                windowTitle, 
+                SDL_WINDOWPOS_UNDEFINED, 
+                SDL_WINDOWPOS_UNDEFINED, 
+                ( int )Clampf( VAR_Num( r_windowWidth ), MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH ),
+                ( int )Clampf( VAR_Num( r_windowHeight ), MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT ),
+                SDL_WINDOW_RESIZABLE  
+            );
+    if( r_window == NULL ) {
+        return SYS_ErrorBox( "Window could not be created! SDL Error: %s", SDL_GetError() );
+    }
+    SDL_SetHint( SDL_HINT_RENDER_DRIVER, "opengl" );
+    r_renderer = SDL_CreateRenderer( r_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+    if ( r_renderer == NULL ) {
+        return SYS_ErrorBox( "Renderer could not be created! SDL Error: %s", SDL_GetError() );
+    }
+    R_FrameBegin( colBlack );
+    R_FrameEnd();
+    r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
+    // white pixel placeholder at index 0
+    byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
+    RI_CreateStaticTexture( whitePixel, 1, 1, 0, 4 );
+    CON_Printf( "Renderer initialized.\n" );
+    R_PrintRendererInfo();
+}
+

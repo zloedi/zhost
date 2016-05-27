@@ -15,7 +15,9 @@ typedef struct {
 
 extern rInfo_t r_info;
 
-void R_Init( const char *windowTitle );
+void R_RegisterVars( void );
+void R_InitEx( const char *windowTitle );
+void R_Init( void );
 void R_FrameBegin( color_t clearColor );
 void R_FrameEnd( void );
 void R_Done( void );

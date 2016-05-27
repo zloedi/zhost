@@ -3,8 +3,8 @@
 
 console_t con;
 
-static var_t *con_showLog;
-static var_t *con_showFontTexture;
+static varPtr_t con_showLog;
+static varPtr_t con_showFontTexture;
 
 void CON_Toggle( bool_t fullscreen ) {
     if ( con.show == CON_SHOW_NONE ) {
@@ -183,8 +183,8 @@ static void CON_CheckResize( void ) {
 void CON_Frame( void ) {
     CON_CheckResize();
     COND_DrawConsole();
-    COND_DrawLog( ( int )con_showLog->number );
-    if ( con_showFontTexture->number ) {
+    COND_DrawLog( ( int )VAR_Num( con_showLog ) );
+    if ( VAR_Num( con_showFontTexture ) ) {
         COND_DrawConsoleFont(); 
     }
 }

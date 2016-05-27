@@ -94,19 +94,20 @@ int main( int argc, char *argv[] ) {
     A_InitEx( SYS_ErrorBox, CON_Printf );
 
     // some core utilites are initialized without vars
-    SYS_Init();
+    SYS_InitEx( "zhost" );
     CON_Init();
     CMD_Init();
     VAR_Init();
 
     // RegisterVars block comes before Init
+    R_RegisterVars();
     CON_RegisterVars();
 
     // overwrite vars everywhere
     VAR_ReadCfg();
 
     // the Init block comes after the vars are read and overwritten
-    R_Init( "zhost skeleton" );
+    R_InitEx( "zhost skeleton" );
 
     // the Start block comes after the renderer is initialized
     CON_Start();
