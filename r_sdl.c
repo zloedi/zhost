@@ -104,7 +104,7 @@ void R_FrameBegin( color_t clearColor ) {
 
 #define MIN_WINDOW_WIDTH 800
 #define MAX_WINDOW_WIDTH (4*1024)
-#define MIN_WINDOW_HEIGHT 800
+#define MIN_WINDOW_HEIGHT 600
 #define MAX_WINDOW_HEIGHT (4*1024)
 
 void R_FrameEnd() {
@@ -160,14 +160,12 @@ void R_InitEx( const char *windowTitle ) {
     if( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 ) {
         return SYS_ErrorBox( "R_InitEx: SDL could not initialize video! SDL Error: %s", SDL_GetError() );
     }
-    r_window = SDL_CreateWindow( 
-                windowTitle, 
+    r_window = SDL_CreateWindow( windowTitle, 
                 SDL_WINDOWPOS_UNDEFINED, 
                 SDL_WINDOWPOS_UNDEFINED, 
                 ( int )Clampf( VAR_Num( r_windowWidth ), MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH ),
                 ( int )Clampf( VAR_Num( r_windowHeight ), MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT ),
-                SDL_WINDOW_RESIZABLE  
-            );
+                SDL_WINDOW_RESIZABLE );
     if( r_window == NULL ) {
         return SYS_ErrorBox( "Window could not be created! SDL Error: %s", SDL_GetError() );
     }
