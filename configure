@@ -13,7 +13,7 @@ MAKEFILE_DIR   = BASE_DIR
 CODE_DIR       = BASE_DIR
 
 # 32 bit target
-m32 = True
+m32 = False
 
 APP_CFLAGS = zbld.GetHostCflags()
 LD_FLAGS = zbld.GetHostLflags( m32 )
