@@ -8,17 +8,17 @@ static varPtr_t r_windowHeight;
 rInfo_t r_info;
 
 typedef struct {
-    v2_t        size;
+    v2_t size;
     SDL_Texture *texture;
 } rImage_t;
 
 #define R_MAX_TEXTURES 256
 
-static SDL_Window   *r_window;
+static SDL_Window *r_window;
 static SDL_Renderer *r_renderer;
-static rImage_t     *r_images;
-static int          r_numImages;
-static color_t      r_color;
+static rImage_t *r_images;
+static int r_numImages;
+static color_t r_color;
 
 void R_Color( float red, float green, float blue, float alpha ) {
     r_color = colorrgba( red, green, blue, alpha );
