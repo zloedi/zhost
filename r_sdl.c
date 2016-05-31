@@ -20,11 +20,11 @@ static rImage_t     *r_images;
 static int          r_numImages;
 static color_t      r_color;
 
-void R2D_Color( float red, float green, float blue, float alpha ) {
+void R_Color( float red, float green, float blue, float alpha ) {
     r_color = colorrgba( red, green, blue, alpha );
 }
 
-void R2D_SolidRect( float x, float y, float width, float height ) {
+void R_SolidRect( float x, float y, float width, float height ) {
     SDL_SetRenderDrawColor( r_renderer,
             ( Uint8 )( r_color.r * 255 ), 
             ( Uint8 )( r_color.g * 255 ),
@@ -40,19 +40,19 @@ void R2D_SolidRect( float x, float y, float width, float height ) {
     SDL_RenderFillRect( r_renderer, &rect );
 }
 
-void R2D_DrawPic( float x, float y,
+void R_DrawPic( float x, float y,
                   float width, float height,
                   float s0, float t0,
                   float s1, float t1,
                   int texture ) {
-    R2D_DrawPicV2( v2xy( x, y ),
+    R_DrawPicV2( v2xy( x, y ),
                    v2xy( width, height ),
                    v2xy( s0, t0 ),
                    v2xy( s1, t1 ),
                    texture );
 }
 
-void R2D_DrawPicV2( v2_t position,
+void R_DrawPicV2( v2_t position,
                     v2_t size,
                     v2_t stTopLeft,
                     v2_t stBottomRight,

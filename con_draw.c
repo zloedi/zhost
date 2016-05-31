@@ -11,7 +11,7 @@ void COND_DrawChar( int x, int y, int c ) {
 	conSymbol_t *symbol = &con_font[c & 255];
 	if ( ! symbol->width )
 		return;
-	R2D_DrawPic( ( float )x + symbol->left, ( float )y + symbol->top,
+	R_DrawPic( ( float )x + symbol->left, ( float )y + symbol->top,
 			    symbol->width, symbol->height,
 				symbol->st0.x, symbol->st0.y,
 				symbol->st1.x, symbol->st1.y,
@@ -19,10 +19,10 @@ void COND_DrawChar( int x, int y, int c ) {
 }
 
 void COND_DrawConsoleFont( void ) {
-	R2D_Color( 0.3f, 0, 0, 1 );
-	R2D_SolidRect( 0, 0, 256, 256 );
-	R2D_Color( 1, 1, 1, 1 );
-	R2D_DrawPic( 0, 0, 256, 256, 0, 0, 1, 1, cond_fontTexture );
+	R_Color( 0.3f, 0, 0, 1 );
+	R_SolidRect( 0, 0, 256, 256 );
+	R_Color( 1, 1, 1, 1 );
+	R_DrawPic( 0, 0, 256, 256, 0, 0, 1, 1, cond_fontTexture );
 }
 
 void COND_DrawLog( int numLines ) {
@@ -42,7 +42,7 @@ void COND_DrawLog( int numLines ) {
             // message died, no point in drawing older messages
 			return;
 		}
-		R2D_Color( 1, 1, 1, 1 - ( float )lifetime / MAX_LIFETIME );
+		R_Color( 1, 1, 1, 1 - ( float )lifetime / MAX_LIFETIME );
 		for ( int i = msg->endChar - 1; i >= msg->startChar; i-- ) {
 			int c = con.buf[i % con.bufSize];
 			int x = i % con.bufWidth;
@@ -66,13 +66,13 @@ void COND_DrawConsole( void ) {
 	} else {
 		return;
 	}
-	R2D_Color( 0.1f, 0, 0, 0.8f );
-	R2D_SolidRect( 0, 0, r_info.screenWidth, ( float )frameHeight + 4 );
-	R2D_Color( 1, 1, 1, 1 );
-	R2D_SolidRect( 0, ( float )frameHeight + 4, ( float )r_info.screenWidth, 2 );
+	R_Color( 0.1f, 0, 0, 0.8f );
+	R_SolidRect( 0, 0, r_info.screenWidth, ( float )frameHeight + 4 );
+	R_Color( 1, 1, 1, 1 );
+	R_SolidRect( 0, ( float )frameHeight + 4, ( float )r_info.screenWidth, 2 );
 	int numLines = frameHeight / CON_SYMBOL_ADVANCEY;
 	CONP_DrawPrompt( ( numLines - 1 ) * CON_SYMBOL_ADVANCEY );
-	R2D_Color( 1, 1, 1, 0.75 );
+	R_Color( 1, 1, 1, 0.75 );
 	if ( con.bufPage < 0 ) {
 		con.bufPage = 0;
 	} else if ( con.bufPage > con.bufNumChars || con.bufNumChars / con.bufWidth < numLines ) {

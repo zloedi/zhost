@@ -192,9 +192,9 @@ void CONP_DrawPrompt( int y ) {
         
         // hilight the current word
         if ( idx >= hiStart && idx <= hiEnd ) {
-            R2D_Color( 1, 1, 1, 1 );
+            R_Color( 1, 1, 1, 1 );
         } else {
-            R2D_Color( 1, 1, 1, 0.6f );
+            R_Color( 1, 1, 1, 0.6f );
         }
         
         int x = ( 1 + i ) * CON_SYMBOL_ADVANCEX;
@@ -202,7 +202,7 @@ void CONP_DrawPrompt( int y ) {
     }
     
     // blinking cursor
-    R2D_Color( 1, 1, 1, 0.75 );
+    R_Color( 1, 1, 1, 0.75 );
     if ( SYS_RealTime() & 128 ) {
         COND_DrawChar( ( 1 + prompt.cursor - start ) * CON_SYMBOL_ADVANCEX, y, '_' );
     }
