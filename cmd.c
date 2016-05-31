@@ -1,4 +1,4 @@
-#include "host.h"
+#include "zhost.h"
 
 static cmd_t *commands;
 

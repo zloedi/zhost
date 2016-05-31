@@ -1,4 +1,4 @@
-#include "host.h"
+#include "zhost.h"
 
 typedef struct var_s {
     struct var_s *next;

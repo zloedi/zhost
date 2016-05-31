@@ -1,4 +1,4 @@
-#include "host.h"
+#include "zhost.h"
 #include "con_private.h"
 
 console_t con;
@@ -245,7 +245,7 @@ void CON_RegisterVars( void ) {
     con_showLog = VAR_RegisterHelp( "con_showLog", "0", "Print console messages on screen. The value is used as the number of lines shown." );
     con_showFontTexture = VAR_Register( "con_showFontTexture", "0" );
     COND_RegisterVars();
-	CMD_Register( "quit", Quit_f );
+    CMD_Register( "quit", Quit_f );
 }
 
 void CON_Init( void ) {

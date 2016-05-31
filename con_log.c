@@ -1,59 +1,59 @@
-#include "host.h"
+#include "zhost.h"
 #include "con_private.h"
 
 // history of text typed in the prompt
 typedef struct {
-	int         rover, head;
-	char        *lines[CON_MAX_HISTORY];
+    int         rover, head;
+    char        *lines[CON_MAX_HISTORY];
 } conLog_t;
 
 static conLog_t clog;
 
 void CONL_LogCommand( const char *cmd ) {
-	int idx;
+    int idx;
 
-	if ( ! stricmp( cmd, "quit" ) ) {
-		return;
-	}
-	
-	if ( stricmp( cmd, clog.lines[clog.head & ( CON_MAX_HISTORY - 1 )] ) ) {
-		clog.head++;
-		idx = clog.head & ( CON_MAX_HISTORY - 1 );
-		A_Free( clog.lines[idx] );
-		clog.lines[idx] = A_StrDup( cmd );
-	}
-	
-	clog.rover = clog.head + 1;
+    if ( ! stricmp( cmd, "quit" ) ) {
+        return;
+    }
+    
+    if ( stricmp( cmd, clog.lines[clog.head & ( CON_MAX_HISTORY - 1 )] ) ) {
+        clog.head++;
+        idx = clog.head & ( CON_MAX_HISTORY - 1 );
+        A_Free( clog.lines[idx] );
+        clog.lines[idx] = A_StrDup( cmd );
+    }
+    
+    clog.rover = clog.head + 1;
 }
 
 static void CONL_SetPrompt( void ) {
-	int idx = clog.rover & ( CON_MAX_HISTORY - 1 );
-	const char *historyLine = clog.lines[idx];
+    int idx = clog.rover & ( CON_MAX_HISTORY - 1 );
+    const char *historyLine = clog.lines[idx];
 
-	CONP_Clear();
-	CONP_Insert( historyLine, COM_StrLen( historyLine ) );
+    CONP_Clear();
+    CONP_Insert( historyLine, COM_StrLen( historyLine ) );
 }
 
 void CONL_OnUp( void ) {
-	int idx = clog.rover - 1;
+    int idx = clog.rover - 1;
 
-	if ( clog.head - idx == CON_MAX_HISTORY )
-		return;
+    if ( clog.head - idx == CON_MAX_HISTORY )
+        return;
 
-	if ( ! *clog.lines[idx & ( CON_MAX_HISTORY - 1 )] )
-		return;
-	
-	clog.rover--;
-	
-	CONL_SetPrompt();
+    if ( ! *clog.lines[idx & ( CON_MAX_HISTORY - 1 )] )
+        return;
+    
+    clog.rover--;
+    
+    CONL_SetPrompt();
 }
 
 void CONL_OnDown( void ) {
-	if ( clog.rover >= clog.head )
-		return;
+    if ( clog.rover >= clog.head )
+        return;
 
-	clog.rover++;
-	CONL_SetPrompt();
+    clog.rover++;
+    CONL_SetPrompt();
 }
 
 static void CONL_StoreLogToFile( void ) {
@@ -83,32 +83,32 @@ static void CONL_StoreLogToFile( void ) {
 }
 
 static const char* CONL_GetLine( const char *buffer, char *out ) {
-	int i;
-	
-	for ( i = 0; ; i++ ) {
-		int c = buffer[i];
+    int i;
+    
+    for ( i = 0; ; i++ ) {
+        int c = buffer[i];
 
-		if ( ! c ) {
-			buffer = NULL;
-			break;
-		}
-		
-		// make sure we quit properly even if there is a too large line
-		if ( i >= VA_SIZE - 1 || c == '\n' ) {
-			buffer += i + 1;
-			break;
-		}
-		
-		out[i] = ( char )c;
-	}
+        if ( ! c ) {
+            buffer = NULL;
+            break;
+        }
+        
+        // make sure we quit properly even if there is a too large line
+        if ( i >= VA_SIZE - 1 || c == '\n' ) {
+            buffer += i + 1;
+            break;
+        }
+        
+        out[i] = ( char )c;
+    }
 
-	out[i] = '\0';
-	return buffer;
+    out[i] = '\0';
+    return buffer;
 }
 
 static void CONL_ReadLogFromFile( void ) {
-	int  i;
-	char *buffer;
+    int  i;
+    char *buffer;
     const char *dataDir = SYS_PrefsDir();
     if ( dataDir ) {
         const char *data;
@@ -137,23 +137,23 @@ static void CONL_ReadLogFromFile( void ) {
 }
 
 void CONL_Init( void ) {
-	int i;
-	
-	for ( i = 0; i < CON_MAX_HISTORY; i++ ) {
-		clog.lines[i] = A_StrDup( "" );
-	}
-	clog.head = CON_MAX_HISTORY;
-	clog.rover = clog.head + 1;
-	CONL_ReadLogFromFile();
-	
-	CON_Printf( "Console log initialized\n" );
+    int i;
+    
+    for ( i = 0; i < CON_MAX_HISTORY; i++ ) {
+        clog.lines[i] = A_StrDup( "" );
+    }
+    clog.head = CON_MAX_HISTORY;
+    clog.rover = clog.head + 1;
+    CONL_ReadLogFromFile();
+    
+    CON_Printf( "Console log initialized\n" );
 }
 
 void CONL_Done( void ) {
-	int i;
-	
-	CONL_StoreLogToFile();
-	for ( i = 0; i < CON_MAX_HISTORY; i++ ) {
-		A_Free( clog.lines[i] );
-	}
+    int i;
+    
+    CONL_StoreLogToFile();
+    for ( i = 0; i < CON_MAX_HISTORY; i++ ) {
+        A_Free( clog.lines[i] );
+    }
 }

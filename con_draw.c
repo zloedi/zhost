@@ -1,4 +1,4 @@
-#include "host.h"
+#include "zhost.h"
 #include "con_private.h"
 
 extern conSymbol_t con_font[];
