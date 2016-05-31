@@ -86,8 +86,7 @@ void R_SaveScreenshot() {
     CON_Printf( "R_SaveScreenshot not implemented" );
 }
 
-static void R_PrintRendererInfo()
-{
+static void R_PrintRendererInfo() {
     SDL_RendererInfo info;
     SDL_GetRendererInfo( r_renderer, &info);
     CON_Printf( " name: %s\n", info.name );
