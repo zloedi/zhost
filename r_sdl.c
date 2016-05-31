@@ -134,10 +134,16 @@ int R_LoadTexture( const char *pathToImage ) {
     // ... x = width, y = height, n = # 8-bit components per pixel ...
     // ... replace '0' with '1'..'4' to force that many components per pixel
     // ... but 'n' will always be the number that it would have been if you said 0
+    int result = 0;
     if ( data ) {
+        result = R_CreateStaticTexture( data, x, y, 0, n );
+        CON_Printf( "R_LoadTexture: loaded image \"%s\". stbi error: \"%s\"", pathToImage, stbi_failure_reason() );
+    } else {
+        result = 0;
+        CON_Printf( "ERROR: R_LoadTexture: failed to load image \"%s\". stbi error: \"%s\"", pathToImage, stbi_failure_reason() );
     }
     stbi_image_free( data );
-    return 0;
+    return result;
 }
 
 int R_CreateStaticTexture( const byte *data, int width, int height, riFlags_t flags, int bytesPerPixel ) {
