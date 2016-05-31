@@ -101,6 +101,10 @@ void UT_RunApp( const char *orgName,
                 void (*start)( void ),
                 void (*frame)( void ),
                 void (*atExit)( void ) ) {
+    // functions registered with atexit are called in reverse order
+    if ( atExit ) {
+        atexit( atExit );
+    }
     atexit( UT_AtExit );
 
     // allocator before all else
