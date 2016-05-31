@@ -39,4 +39,4 @@ void R_DrawPicV2( v2_t position,
                   v2_t stBottomRight,
                   int texture );
 
-int RI_CreateStaticTexture( const byte *data, int width, int height, riFlags_t flags, int bytesPerPixel );
+int R_CreateStaticTexture( const byte *data, int width, int height, riFlags_t flags, int bytesPerPixel );

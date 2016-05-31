@@ -140,9 +140,9 @@ int R_LoadTexture( const char *pathToImage ) {
     return 0;
 }
 
-int RI_CreateStaticTexture( const byte *data, int width, int height, riFlags_t flags, int bytesPerPixel ) {
+int R_CreateStaticTexture( const byte *data, int width, int height, riFlags_t flags, int bytesPerPixel ) {
     if ( r_numImages == R_MAX_TEXTURES ) {
-        CON_Printf( "ERROR: RI_CreateStaticTexture: out of textures" );
+        CON_Printf( "ERROR: R_CreateStaticTexture: out of textures" );
         return 0;
     }
     SDL_Texture *texture = SDL_CreateTexture( r_renderer, 
@@ -157,7 +157,7 @@ int RI_CreateStaticTexture( const byte *data, int width, int height, riFlags_t f
     };
     r_images[r_numImages] = img;
     r_numImages++;
-    CON_Printf( "RI_CreateStaticTexture: created texture. size: %d,%d ; bpp: %d\n", width, height, bytesPerPixel );
+    CON_Printf( "R_CreateStaticTexture: created texture. size: %d,%d ; bpp: %d\n", width, height, bytesPerPixel );
     return r_numImages - 1;
 }
 
@@ -193,7 +193,7 @@ void R_InitEx( const char *windowTitle ) {
     r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
     // white pixel placeholder at index 0
     byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
-    RI_CreateStaticTexture( whitePixel, 1, 1, 0, 4 );
+    R_CreateStaticTexture( whitePixel, 1, 1, 0, 4 );
     CON_Printf( "Renderer initialized.\n" );
     R_PrintRendererInfo();
 }
