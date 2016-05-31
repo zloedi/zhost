@@ -34,6 +34,7 @@ def main():
         "r_sdl",
         "sys",
         "var",
+        "util",
     ]
     zbld.GenerateMakefile( BASE_DIR, [ ( CODE_DIR, appObjs ) ], APP_CFLAGS, LD_FLAGS, TARGET_DIR, TARGET_NAME, MAKEFILE_DIR, m32 )
 
