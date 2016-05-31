@@ -180,7 +180,7 @@ void R_InitEx( const char *windowTitle ) {
     if( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 ) {
         return SYS_ErrorBox( "R_InitEx: SDL could not initialize video! SDL Error: %s", SDL_GetError() );
     }
-    r_window = SDL_CreateWindow( windowTitle, 
+    r_window = SDL_CreateWindow( windowTitle ? windowTitle : "missing window title",
                 SDL_WINDOWPOS_UNDEFINED, 
                 SDL_WINDOWPOS_UNDEFINED, 
                 ( int )Clampf( VAR_Num( r_windowWidth ), MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH ),

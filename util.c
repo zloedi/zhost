@@ -107,7 +107,7 @@ void UT_RunApp( const char *orgName,
     A_InitEx( SYS_ErrorBox, CON_Printf );
 
     // some core utilites are initialized without vars
-    SYS_InitEx( "zloedi", "zhost" );
+    SYS_InitEx( orgName, appName );
     CON_Init();
     CMD_Init();
     VAR_Init();
