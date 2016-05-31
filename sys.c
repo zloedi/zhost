@@ -41,16 +41,16 @@ const char* SYS_PrefsDir( void ) {
     return sys_prefsDir;
 }
 
-void SYS_InitEx( const char *appName ) {
+void SYS_InitEx( const char* organizationName, const char *appName ) {
     if ( SDL_InitSubSystem( SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_AUDIO ) < 0 ) {
         SYS_ErrorBox( "SYS_Init: SDL could not initialize! SDL Error: %s", SDL_GetError() );
     }
     SYS_SampleTime();
-    sys_prefsDir = SDL_GetPrefPath( "zloedi", appName ? appName : "zhost" );
+    sys_prefsDir = SDL_GetPrefPath( organizationName ? organizationName : "zloedi", appName ? appName : "zhost" );
 }
 
 void SYS_Init( void ) {
-    SYS_InitEx( NULL );
+    SYS_InitEx( NULL, NULL );
 }
 
 void SYS_Done( void ) {

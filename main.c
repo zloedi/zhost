@@ -94,7 +94,7 @@ int main( int argc, char *argv[] ) {
     A_InitEx( SYS_ErrorBox, CON_Printf );
 
     // some core utilites are initialized without vars
-    SYS_InitEx( "zhost" );
+    SYS_InitEx( "zloedi", "zhost" );
     CON_Init();
     CMD_Init();
     VAR_Init();

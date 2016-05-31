@@ -2,7 +2,7 @@
 #include <SDL.h>
 
 void SYS_Init( void );
-void SYS_InitEx( const char *appName );
+void SYS_InitEx( const char* organizationName, const char *appName );
 void SYS_Done( void );
 void SYS_ErrorBox( const char *fmt, ... );
 timestamp_t SYS_RealTime( void );
