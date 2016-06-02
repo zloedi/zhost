@@ -96,7 +96,6 @@ void UT_RunApp( const char *orgName,
                 color_t clearColor,
                 void (*registerVars)( void ),
                 void (*init)( void ),
-                void (*start)( void ),
                 void (*frame)( void ),
                 void (*done)( void ) ) {
     // functions registered with atexit are called in reverse order
@@ -126,9 +125,7 @@ void UT_RunApp( const char *orgName,
     R_InitEx( windowTitle );
     SAFE_CALL( init );
 
-    // the app Start comes after the renderer is initialized
     CON_Start();
-    SAFE_CALL( start );
 
     bool_t quit = false;
     do {

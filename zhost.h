@@ -10,6 +10,5 @@ void UT_RunApp( const char *orgName,
                 color_t clearColor,
                 void (*registerVars)( void ),
                 void (*init)( void ),
-                void (*start)( void ),
                 void (*frame)( void ),
                 void (*done)( void ) );
