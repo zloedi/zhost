@@ -12,4 +12,4 @@ void UT_RunApp( const char *orgName,
                 void (*init)( void ),
                 void (*start)( void ),
                 void (*frame)( void ),
-                void (*atExit)( void ) );
+                void (*done)( void ) );

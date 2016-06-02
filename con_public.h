@@ -1,6 +1,6 @@
 void CON_RegisterVars( void );
 void CON_Start( void );
-void CON_End( void );
+void CON_Stop( void );
 void CON_Init( void );
 void CON_Done( void );
 void CON_OnText( const char *text );

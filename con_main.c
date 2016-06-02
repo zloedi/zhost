@@ -262,8 +262,8 @@ void CON_Start( void ) {
     COND_Start();
 }
 
-void CON_End( void ) {
-    COND_End();
+void CON_Stop( void ) {
+    COND_Stop();
 }
 
 void CON_Done( void ) {

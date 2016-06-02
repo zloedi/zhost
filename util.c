@@ -1,9 +1,7 @@
 #include "zhost.h"
 
-static void UT_AtExit( void ) {
-    // End block before the renderer is killed
-    CON_End();
-
+static void UT_Done_f( void ) {
+    CON_Stop();
     R_Done();
     VAR_Done();
     CMD_Done();
@@ -100,12 +98,12 @@ void UT_RunApp( const char *orgName,
                 void (*init)( void ),
                 void (*start)( void ),
                 void (*frame)( void ),
-                void (*atExit)( void ) ) {
+                void (*done)( void ) ) {
     // functions registered with atexit are called in reverse order
-    if ( atExit ) {
-        atexit( atExit );
+    atexit( UT_Done_f );
+    if ( done ) {
+        atexit( done );
     }
-    atexit( UT_AtExit );
 
     // allocator before all else
     A_InitEx( SYS_ErrorBox, CON_Printf );

@@ -5,21 +5,9 @@ SCRIPTS_DIR = sys.path[0] + "/../scripts"
 sys.path.append( SCRIPTS_DIR )
 import zbld
 
-BASE_DIR = zbld.NormalizePath(sys.path[0]) + '/'
-TARGET_NAME = "zhost"
-TARGET_32BIT = False
-APP_CFLAGS = zbld.GetHostCflags()
-LD_FLAGS = zbld.GetHostLflags( TARGET_32BIT )
 APP_OBJS = [
     "main",
 ]
 
-zbld.Configure( BASE_DIR, 
-                [( zbld.HOST_DIR, zbld.GetHostObjs() ),( BASE_DIR, APP_OBJS )], 
-                APP_CFLAGS, 
-                LD_FLAGS, 
-                BASE_DIR, 
-                TARGET_NAME, 
-                BASE_DIR, 
-                TARGET_32BIT )
-zbld.PostConfigure( TARGET_32BIT, useSDL = True )
+zbld.Configure( appObjs = [( "./", APP_OBJS )], targetName = "zhost" )
+zbld.PostConfigure()

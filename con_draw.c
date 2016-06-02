@@ -104,5 +104,5 @@ void COND_Start( void ) {
     cond_fontTexture = R_CreateStaticTexture( con_fontBitmap, 256, 256, RI_NONE, 4 );
 }
 
-void COND_End( void ) {
+void COND_Stop( void ) {
 }

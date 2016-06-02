@@ -49,7 +49,7 @@ void COND_DrawConsole( void );
 void COND_DrawConsoleFont( void );
 void COND_RegisterVars( void );
 void COND_Start( void );
-void COND_End( void );
+void COND_Stop( void );
 
 /*
 ===================================
