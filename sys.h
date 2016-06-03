@@ -9,6 +9,6 @@ void SYS_WriteToClipboard( const char *str );
 const char* SYS_ReadClipboard( void );
 const char* SYS_PrefsDir( void );
 const char* SYS_BaseDir( void );
-void SYS_SampleTime( void );
+int SYS_SampleTime( void );
 int SYS_RealTime( void );
 char** SYS_ListFiles( const char *dir, const char *pattern );

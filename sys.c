@@ -21,8 +21,9 @@ static int SYS_Milliseconds( void ) {
     return SDL_GetTicks();
 }
 
-void SYS_SampleTime( void ) {
+int SYS_SampleTime( void ) {
     sys_realTime = SYS_Milliseconds();
+    return sys_realTime;
 }
 
 int SYS_RealTime( void ) {

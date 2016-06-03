@@ -136,18 +136,21 @@ void UT_RunApp( const char *orgName,
 
     // main loop
     bool_t quit = false;
-    int prevMilliseconds = SYS_RealTime();
+    int milliseconds = SYS_RealTime();
     do {
         utFrameParams_t params;
-        int milliseconds = SYS_RealTime();
-        params.timeDelta = milliseconds - prevMilliseconds;
-        prevMilliseconds = milliseconds;
         quit = UT_ProcessEvents( &params );
         R_FrameBegin( clearColor );
         CON_Frame();
+
+        // store delta time
+        int ms = SYS_SampleTime();
+        params.timeDelta = ms - milliseconds;
+        milliseconds = ms;
+
         // app Frame before frame end
         SAFE_CALL( frame, &params );
+
         R_FrameEnd();
-        SYS_SampleTime();
     } while ( ! quit );
 }
