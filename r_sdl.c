@@ -20,6 +20,10 @@ static rImage_t *r_images;
 static int r_numImages;
 static color_t r_color;
 
+void R_ColorC( color_t color ) {
+    r_color = color;
+}
+
 void R_Color( float red, float green, float blue, float alpha ) {
     r_color = colorrgba( red, green, blue, alpha );
 }
@@ -134,17 +138,21 @@ rImage_t* R_LoadTexture( const char *pathToImage ) {
     // ... but 'n' will always be the number that it would have been if you said 0
     rImage_t* result;
     if ( data ) {
-        result = R_CreateStaticTexture( data, x, y, n );
-        CON_Printf( "R_LoadTexture: loaded image \"%s\". stbi error: \"%s\"", pathToImage, stbi_failure_reason() );
+        result = R_CreateStaticTexture( data, x, y );
+        CON_Printf( "R_LoadTexture: loaded image \"%s\"\n", pathToImage );
+        CON_Printf( " width:  %d\n", x );
+        CON_Printf( " height: %d\n", x );
+        CON_Printf( " bpp:    %d\n", n * 8 );
     } else {
         result = &r_images[0];
-        CON_Printf( "ERROR: R_LoadTexture: failed to load image \"%s\". stbi error: \"%s\"", pathToImage, stbi_failure_reason() );
+        CON_Printf( "ERROR: R_LoadTexture: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
     }
     stbi_image_free( data );
     return result;
 }
 
-rImage_t* R_CreateStaticTexture( const byte *data, int width, int height, int bytesPerPixel ) {
+// supports only RGBA8888 textures
+rImage_t* R_CreateStaticTexture( const byte *data, int width, int height ) {
     if ( r_numImages == R_MAX_TEXTURES ) {
         CON_Printf( "ERROR: R_CreateStaticTexture: out of textures" );
         return &r_images[0];
@@ -154,12 +162,12 @@ rImage_t* R_CreateStaticTexture( const byte *data, int width, int height, int by
             SDL_TEXTUREACCESS_STATIC, 
             width, 
             height );
-    SDL_UpdateTexture( texture, NULL, data, width * bytesPerPixel );
+    SDL_UpdateTexture( texture, NULL, data, width * 4 );
     rImage_t *img= &r_images[r_numImages];
     img->size = v2xy( width, height );
     img->texture = texture;
     r_numImages++;
-    CON_Printf( "R_CreateStaticTexture: created texture. size: %d,%d ; bpp: %d\n", width, height, bytesPerPixel );
+    CON_Printf( "R_CreateStaticTexture: created texture. size: %d,%d\n", width, height );
     return img;
 }
 
@@ -198,8 +206,8 @@ void R_InitEx( const char *windowTitle ) {
     R_FrameEnd();
     r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
     // white pixel placeholder at index 0
-    byte whitePixel[] = { 0xff };
-    R_CreateStaticTexture( whitePixel, 1, 1, 1 );
+    byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
+    R_CreateStaticTexture( whitePixel, 1, 1 );
     CON_Printf( "Renderer initialized.\n" );
     R_PrintRendererInfo();
 }

@@ -115,7 +115,7 @@ void UT_RunApp( const char *orgName,
     CMD_Init();
     VAR_Init();
 
-    // RegisterVars before app Init
+    // RegisterVars before init
     R_RegisterVars();
     CON_RegisterVars();
     SAFE_CALL( registerVars );
@@ -123,11 +123,17 @@ void UT_RunApp( const char *orgName,
     // overwrite vars everywhere
     VAR_ReadCfg();
 
-    // the app Init comes after the vars are read and overwritten
+    // Inits come after the vars are read and overwritten
     R_InitEx( windowTitle );
-    SAFE_CALL( init );
 
+    // some parts of the console need a working renderer
     CON_Start();
+
+    // make sure the console can print on the log
+    CON_Frame();
+
+    // app specific init
+    SAFE_CALL( init );
 
     bool_t quit = false;
     do {

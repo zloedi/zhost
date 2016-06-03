@@ -11,6 +11,7 @@ void R_SaveScreenshot( void );
 // FIXME: these used to be OpenGL routines
 // FIXME: st coordinates larger than 1 dont work under SDL
 // FIXME: use scale?
+void R_ColorC( color_t color );
 void R_Color( float red, float green, float blue, float alpha );
 void R_SolidRect( float x, float y, float width, float height );
 void R_DrawPic( float x, float y,
@@ -25,5 +26,5 @@ void R_DrawPicV2( v2_t position,
                   rImage_t *img );
 
 rImage_t* R_LoadTexture( const char *pathToImage );
-rImage_t* R_CreateStaticTexture( const byte *data, int width, int height, int bytesPerPixel );
+rImage_t* R_CreateStaticTexture( const byte *data, int width, int height );
 v2_t R_GetWindowSize( void );
