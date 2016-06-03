@@ -91,7 +91,6 @@ static bool_t UT_ProcessEvents( utFrameParams_t *outParams ) {
 
 #define SAFE_CALL(f,...) (f?f(__VA_ARGS__):f)
 
-// TODO: split this to give users more control
 void UT_RunApp( const char *orgName, 
                 const char *appName,
                 const char *windowTitle,
@@ -135,9 +134,14 @@ void UT_RunApp( const char *orgName,
     // app specific init
     SAFE_CALL( init );
 
+    // main loop
     bool_t quit = false;
+    int prevMilliseconds = SYS_RealTime();
     do {
         utFrameParams_t params;
+        int milliseconds = SYS_RealTime();
+        params.timeDelta = milliseconds - prevMilliseconds;
+        prevMilliseconds = milliseconds;
         quit = UT_ProcessEvents( &params );
         R_FrameBegin( clearColor );
         CON_Frame();

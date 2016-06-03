@@ -189,8 +189,6 @@ static inline void v2OBBToPoly( v2_t center, v2_t axis1, v2_t axis2, float exten
     out[3] = v2Sub( center, d2 );
 }
 
-typedef int timestamp_t;
-
 #define VA_SIZE 1024
 #ifdef __linux__
 #define stricmp strcasecmp

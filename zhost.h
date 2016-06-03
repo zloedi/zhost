@@ -6,9 +6,8 @@
 
 typedef struct {
     //int    numFrames;
-    //float  timeDelta
-    //double timeMilliseconds;
-    v2_t   cursorPosition;
+    int  timeDelta;
+    v2_t cursorPosition;
     //bool_t keyPresses[256];
 } utFrameParams_t;
 

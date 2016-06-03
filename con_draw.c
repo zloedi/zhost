@@ -37,7 +37,7 @@ void COND_DrawLog( int numLines ) {
     for ( int j = con.numMessages - 1; ; j-- ) {
         const conMessage_t *msg = &con.messages[j & ( CON_MAX_MESSAGES - 1 )];
 #define MAX_LIFETIME 6000
-        timestamp_t lifetime = SYS_RealTime() - msg->time;
+        int lifetime = SYS_RealTime() - msg->time;
         if ( lifetime > MAX_LIFETIME ) {
             // message died, no point in drawing older messages
             return;

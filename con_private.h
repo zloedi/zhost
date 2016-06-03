@@ -18,9 +18,9 @@ typedef struct {
 #define CON_MAX_MESSAGES  256
 
 typedef struct {
-	timestamp_t  time;
-	int          startChar;
-	int          endChar;
+	int time;
+	int startChar;
+	int endChar;
 } conMessage_t;
 
 typedef struct {
@@ -33,7 +33,7 @@ typedef struct {
 	char         *buf;
 	show_t       show;
 	bool_t       ctlDown, shiftDown;
-    timestamp_t  toggleTime;
+    int          toggleTime;
 } console_t;
 
 extern console_t con;

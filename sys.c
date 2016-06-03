@@ -1,6 +1,6 @@
 #include "sys.h"
 
-static timestamp_t sys_realTime;
+static int  sys_realTime;
 static char *sys_prefsDir;
 static char *sys_baseDir;
 
@@ -17,15 +17,15 @@ void SYS_ErrorBox( const char *fmt, ... ) {
     exit( -1 );
 }
 
-static timestamp_t SYS_Milliseconds( void ) {
-    return ( timestamp_t )SDL_GetTicks();
+static int SYS_Milliseconds( void ) {
+    return SDL_GetTicks();
 }
 
 void SYS_SampleTime( void ) {
     sys_realTime = SYS_Milliseconds();
 }
 
-timestamp_t SYS_RealTime( void ) {
+int SYS_RealTime( void ) {
     return sys_realTime;
 }
 
