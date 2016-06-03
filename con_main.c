@@ -64,12 +64,12 @@ bool_t CON_OnKeyboard( int code, bool_t down ) {
     }
 
     if ( code == SDLK_PAGEUP ) {
-        con.bufPage -= con.bufWidth * ( ( int )r_info.screenHeight / CON_SYMBOL_ADVANCEY ) / 4;
+        con.bufPage -= con.bufWidth * ( ( int )R_GetWindowSize().y / CON_SYMBOL_ADVANCEY ) / 4;
         return true;
     }
 
     if ( code == SDLK_PAGEDOWN ) {
-        con.bufPage += con.bufWidth * ( ( int )r_info.screenHeight / CON_SYMBOL_ADVANCEY ) / 4;
+        con.bufPage += con.bufWidth * ( ( int )R_GetWindowSize().y / CON_SYMBOL_ADVANCEY ) / 4;
         return true;
     }
 
@@ -140,8 +140,9 @@ bool_t CON_OnKeyboard( int code, bool_t down ) {
 }
 
 static void CON_CheckResize( void ) {
-    int w = ( int )r_info.screenWidth / CON_SYMBOL_ADVANCEX;
-    int h = ( int )r_info.screenHeight / CON_SYMBOL_ADVANCEY;
+    v2_t ws = R_GetWindowSize();
+    int w = ( int )ws.x / CON_SYMBOL_ADVANCEX;
+    int h = ( int )ws.y / CON_SYMBOL_ADVANCEY;
     int  i, j;
     char *tmp;
     

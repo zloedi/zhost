@@ -32,7 +32,7 @@ void COND_DrawLog( int numLines ) {
     if ( con.show != CON_SHOW_NONE ) {
         return;
     }
-    numLines = Mini( numLines, ( int )r_info.screenHeight / CON_SYMBOL_ADVANCEY );
+    numLines = Mini( numLines, ( int )R_GetWindowSize().y / CON_SYMBOL_ADVANCEY );
     int y = numLines - 1;
     for ( int j = con.numMessages - 1; ; j-- ) {
         const conMessage_t *msg = &con.messages[j & ( CON_MAX_MESSAGES - 1 )];
@@ -58,18 +58,19 @@ void COND_DrawLog( int numLines ) {
 }
 
 void COND_DrawConsole( void ) {
+    v2_t ws = R_GetWindowSize();
     int frameHeight;
     if ( con.show == CON_SHOW_HALFSCREEN ) {
-        frameHeight = ( int )( r_info.screenHeight / 3 );
+        frameHeight = ws.y / 3;
     } else if ( con.show == CON_SHOW_FULLSCREEN ) {
-        frameHeight = ( int )r_info.screenHeight;
+        frameHeight = ws.y;
     } else {
         return;
     }
     R_Color( 0.1f, 0, 0, 0.8f );
-    R_SolidRect( 0, 0, r_info.screenWidth, ( float )frameHeight + 4 );
+    R_SolidRect( 0, 0, ws.x, ( float )frameHeight + 4 );
     R_Color( 1, 1, 1, 1 );
-    R_SolidRect( 0, ( float )frameHeight + 4, ( float )r_info.screenWidth, 2 );
+    R_SolidRect( 0, ( float )frameHeight + 4, ws.x, 2 );
     int numLines = frameHeight / CON_SYMBOL_ADVANCEY;
     CONP_DrawPrompt( ( numLines - 1 ) * CON_SYMBOL_ADVANCEY );
     R_Color( 1, 1, 1, 0.75 );

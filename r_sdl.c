@@ -5,7 +5,7 @@
 static varPtr_t r_windowWidth;
 static varPtr_t r_windowHeight;
 
-rInfo_t r_info;
+v2_t r_windowSize;
 
 typedef struct {
     v2_t size;
@@ -95,6 +95,9 @@ static void R_PrintRendererInfo() {
 }
 
 void R_FrameBegin( color_t clearColor ) {
+    int w, h;
+    SDL_GetWindowSize( r_window, &w, &h );
+    r_windowSize = v2xy( w, h );
     SDL_SetRenderDrawColor( r_renderer,
             ( Uint8 )( clearColor.r * 255 ), 
             ( Uint8 )( clearColor.g * 255 ),
@@ -115,10 +118,6 @@ void R_FrameEnd() {
                 ( int )Clampf( VAR_Num( r_windowWidth ), MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH ),
                 ( int )Clampf( VAR_Num( r_windowHeight ), MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT ) );
     }
-    int w, h;
-    SDL_GetWindowSize( r_window, &w, &h );
-    r_info.screenWidth = ( float )w;
-    r_info.screenHeight = ( float )h;
 }
 
 void R_Done() {
@@ -165,6 +164,10 @@ int R_CreateStaticTexture( const byte *data, int width, int height, riFlags_t fl
     r_numImages++;
     CON_Printf( "R_CreateStaticTexture: created texture. size: %d,%d ; bpp: %d\n", width, height, bytesPerPixel );
     return r_numImages - 1;
+}
+
+v2_t R_GetWindowSize( void ) {
+    return r_windowSize;
 }
 
 void R_RegisterVars( void ) {

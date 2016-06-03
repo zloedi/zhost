@@ -13,8 +13,6 @@ typedef struct {
     float screenHeight;
 } rInfo_t;
 
-extern rInfo_t r_info;
-
 void R_RegisterVars( void );
 void R_InitEx( const char *windowTitle );
 void R_Init( void );
@@ -40,3 +38,4 @@ void R_DrawPicV2( v2_t position,
                   int texture );
 
 int R_CreateStaticTexture( const byte *data, int width, int height, riFlags_t flags, int bytesPerPixel );
+v2_t R_GetWindowSize( void );
