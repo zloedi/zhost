@@ -2,6 +2,7 @@
 
 static timestamp_t sys_realTime;
 static char *sys_prefsDir;
+static char *sys_baseDir;
 
 void SYS_ErrorBox( const char *fmt, ... ) {
     char buf[VA_SIZE] = {0};
@@ -37,6 +38,10 @@ const char* SYS_ReadClipboard( void ) {
     return "";
 }
 
+const char* SYS_BaseDir( void ) {
+    return sys_baseDir;
+}
+
 const char* SYS_PrefsDir( void ) {
     return sys_prefsDir;
 }
@@ -47,6 +52,10 @@ void SYS_InitEx( const char* organizationName, const char *appName ) {
     }
     SYS_SampleTime();
     sys_prefsDir = SDL_GetPrefPath( organizationName ? organizationName : "zloedi", appName ? appName : "zhost" );
+    sys_baseDir = SDL_GetBasePath();
+    if ( ! sys_baseDir ) {
+        sys_baseDir = A_StrDup( "./" );
+    }
 }
 
 void SYS_Init( void ) {
@@ -55,6 +64,7 @@ void SYS_Init( void ) {
 
 void SYS_Done( void ) {
     SDL_free( sys_prefsDir );
+    SDL_free( sys_baseDir );
 }
 
 #ifdef __unix__

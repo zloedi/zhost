@@ -26,5 +26,5 @@ void R_DrawPicV2( v2_t position,
                   rImage_t *img );
 
 rImage_t* R_LoadTexture( const char *pathToImage );
-rImage_t* R_CreateStaticTexture( const byte *data, int width, int height );
+rImage_t* R_CreateStaticTexture( const byte *data, int width, int height, int bytesPerPixel );
 v2_t R_GetWindowSize( void );

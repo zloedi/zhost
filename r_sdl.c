@@ -130,21 +130,21 @@ void R_Done() {
 }
 
 rImage_t* R_LoadTexture( const char *pathToImage ) {
+    const char *finalPath = va( "%sdata/%s", SYS_BaseDir(), pathToImage );
     int x,y,n;
-    unsigned char *data = stbi_load(pathToImage, &x, &y, &n, 0);
+    unsigned char *data = stbi_load( finalPath, &x, &y, &n, 0 );
     // ... process data if not NULL ...
     // ... x = width, y = height, n = # 8-bit components per pixel ...
     // ... replace '0' with '1'..'4' to force that many components per pixel
     // ... but 'n' will always be the number that it would have been if you said 0
-    rImage_t* result;
+    rImage_t* result = &r_images[0];
     if ( data ) {
-        result = R_CreateStaticTexture( data, x, y );
         CON_Printf( "R_LoadTexture: loaded image \"%s\"\n", pathToImage );
         CON_Printf( " width:  %d\n", x );
         CON_Printf( " height: %d\n", x );
         CON_Printf( " bpp:    %d\n", n * 8 );
+        result = R_CreateStaticTexture( data, x, y, n );
     } else {
-        result = &r_images[0];
         CON_Printf( "ERROR: R_LoadTexture: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
     }
     stbi_image_free( data );
@@ -152,9 +152,13 @@ rImage_t* R_LoadTexture( const char *pathToImage ) {
 }
 
 // supports only RGBA8888 textures
-rImage_t* R_CreateStaticTexture( const byte *data, int width, int height ) {
+rImage_t* R_CreateStaticTexture( const byte *data, int width, int height, int bytesPerPixel ) {
     if ( r_numImages == R_MAX_TEXTURES ) {
         CON_Printf( "ERROR: R_CreateStaticTexture: out of textures" );
+        return &r_images[0];
+    }
+    if ( bytesPerPixel != 4 ) {
+        CON_Printf( "ERROR: R_CreateStaticTexture: unsupported components per pixel %d\n", bytesPerPixel );
         return &r_images[0];
     }
     SDL_Texture *texture = SDL_CreateTexture( r_renderer, 
@@ -207,7 +211,7 @@ void R_InitEx( const char *windowTitle ) {
     r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
     // white pixel placeholder at index 0
     byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
-    R_CreateStaticTexture( whitePixel, 1, 1 );
+    R_CreateStaticTexture( whitePixel, 1, 1, 4 );
     CON_Printf( "Renderer initialized.\n" );
     R_PrintRendererInfo();
 }
