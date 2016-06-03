@@ -27,8 +27,7 @@ static void UT_ProcessKey( int code, bool_t down ) {
     //K_OnKeyboard( code, down );
 }
 
-// TODO: move much of this to SYS
-static bool_t UT_ProcessEvents( void ) {
+static bool_t UT_ProcessEvents( utFrameParams_t *outParams ) {
     bool_t quit = false;
     SDL_Event event;
     while ( SDL_PollEvent( &event ) ) {
@@ -84,6 +83,9 @@ static bool_t UT_ProcessEvents( void ) {
             default:;
         }
     }
+    int x, y;
+    SDL_GetMouseState( &x, &y );
+    outParams->cursorPosition = v2xy( x, y );
     return quit;
 }
 
@@ -96,7 +98,7 @@ void UT_RunApp( const char *orgName,
                 color_t clearColor,
                 void (*registerVars)( void ),
                 void (*init)( void ),
-                void (*frame)( void ),
+                void (*frame)( const utFrameParams_t* ),
                 void (*done)( void ) ) {
     // functions registered with atexit are called in reverse order
     atexit( UT_Done_f );
@@ -129,11 +131,12 @@ void UT_RunApp( const char *orgName,
 
     bool_t quit = false;
     do {
-        quit = UT_ProcessEvents();
+        utFrameParams_t params;
+        quit = UT_ProcessEvents( &params );
         R_FrameBegin( clearColor );
         CON_Frame();
         // app Frame before frame end
-        SAFE_CALL( frame );
+        SAFE_CALL( frame, &params );
         R_FrameEnd();
         SYS_SampleTime();
     } while ( ! quit );

@@ -7,10 +7,10 @@ static varPtr_t r_windowHeight;
 
 v2_t r_windowSize;
 
-typedef struct {
+struct rImage_s {
     v2_t size;
     SDL_Texture *texture;
-} rImage_t;
+};
 
 #define R_MAX_TEXTURES 256
 
@@ -44,20 +44,19 @@ void R_DrawPic( float x, float y,
                   float width, float height,
                   float s0, float t0,
                   float s1, float t1,
-                  int texture ) {
+                  rImage_t *img ) {
     R_DrawPicV2( v2xy( x, y ),
                    v2xy( width, height ),
                    v2xy( s0, t0 ),
                    v2xy( s1, t1 ),
-                   texture );
+                   img );
 }
 
 void R_DrawPicV2( v2_t position,
                     v2_t size,
                     v2_t stTopLeft,
                     v2_t stBottomRight,
-                    int texture ) {
-    rImage_t *img = &r_images[texture];
+                    rImage_t *img ) {
     SDL_SetTextureColorMod( img->texture,
             ( Uint8 )( r_color.r * 255 ), 
             ( Uint8 )( r_color.g * 255 ),
@@ -126,29 +125,29 @@ void R_Done() {
     CON_Printf( "Renderer done.\n" );
 }
 
-int R_LoadTexture( const char *pathToImage ) {
+rImage_t* R_LoadTexture( const char *pathToImage ) {
     int x,y,n;
     unsigned char *data = stbi_load(pathToImage, &x, &y, &n, 0);
     // ... process data if not NULL ...
     // ... x = width, y = height, n = # 8-bit components per pixel ...
     // ... replace '0' with '1'..'4' to force that many components per pixel
     // ... but 'n' will always be the number that it would have been if you said 0
-    int result = 0;
+    rImage_t* result;
     if ( data ) {
-        result = R_CreateStaticTexture( data, x, y, 0, n );
+        result = R_CreateStaticTexture( data, x, y, n );
         CON_Printf( "R_LoadTexture: loaded image \"%s\". stbi error: \"%s\"", pathToImage, stbi_failure_reason() );
     } else {
-        result = 0;
+        result = &r_images[0];
         CON_Printf( "ERROR: R_LoadTexture: failed to load image \"%s\". stbi error: \"%s\"", pathToImage, stbi_failure_reason() );
     }
     stbi_image_free( data );
     return result;
 }
 
-int R_CreateStaticTexture( const byte *data, int width, int height, riFlags_t flags, int bytesPerPixel ) {
+rImage_t* R_CreateStaticTexture( const byte *data, int width, int height, int bytesPerPixel ) {
     if ( r_numImages == R_MAX_TEXTURES ) {
         CON_Printf( "ERROR: R_CreateStaticTexture: out of textures" );
-        return 0;
+        return &r_images[0];
     }
     SDL_Texture *texture = SDL_CreateTexture( r_renderer, 
             SDL_PIXELFORMAT_RGBA8888, 
@@ -156,14 +155,12 @@ int R_CreateStaticTexture( const byte *data, int width, int height, riFlags_t fl
             width, 
             height );
     SDL_UpdateTexture( texture, NULL, data, width * bytesPerPixel );
-    rImage_t img = {
-        .size = v2xy( ( float )width, ( float )height ),
-        .texture = texture,
-    };
-    r_images[r_numImages] = img;
+    rImage_t *img= &r_images[r_numImages];
+    img->size = v2xy( width, height );
+    img->texture = texture;
     r_numImages++;
     CON_Printf( "R_CreateStaticTexture: created texture. size: %d,%d ; bpp: %d\n", width, height, bytesPerPixel );
-    return r_numImages - 1;
+    return img;
 }
 
 v2_t R_GetWindowSize( void ) {
@@ -201,8 +198,8 @@ void R_InitEx( const char *windowTitle ) {
     R_FrameEnd();
     r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
     // white pixel placeholder at index 0
-    byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
-    R_CreateStaticTexture( whitePixel, 1, 1, 0, 4 );
+    byte whitePixel[] = { 0xff };
+    R_CreateStaticTexture( whitePixel, 1, 1, 1 );
     CON_Printf( "Renderer initialized.\n" );
     R_PrintRendererInfo();
 }

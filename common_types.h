@@ -57,6 +57,11 @@ typedef union {
 } v2_t;
 
 static v2_t v2zero = { .x = 0, .y = 0 };
+static v2_t v2one = { .x = 1, .y = 1 };
+
+static inline v2_t warnDisabler( void ) {
+    return v2one;
+}
 
 static inline v2_t v2xy( float x, float y ) {
     v2_t v = { { x, y } };

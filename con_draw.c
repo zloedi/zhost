@@ -5,7 +5,7 @@ extern conSymbol_t con_font[];
 extern int con_fontDef[];
 extern byte con_fontBitmap[];
 
-int cond_fontTexture;
+rImage_t *cond_fontTexture;
 
 void COND_DrawChar( int x, int y, int c ) {
     conSymbol_t *symbol = &con_font[c & 255];
@@ -102,7 +102,7 @@ void COND_RegisterVars( void ) {
 }
 
 void COND_Start( void ) {
-    cond_fontTexture = R_CreateStaticTexture( con_fontBitmap, 256, 256, RI_NONE, 4 );
+    cond_fontTexture = R_CreateStaticTexture( con_fontBitmap, 256, 256, 4 );
 }
 
 void COND_Stop( void ) {
