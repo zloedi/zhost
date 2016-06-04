@@ -128,9 +128,6 @@ void UT_RunApp( const char *orgName,
     // some parts of the console need a working renderer
     CON_Start();
 
-    // make sure the console can print on the log
-    CON_Frame();
-
     // app specific init
     SAFE_CALL( init );
 
