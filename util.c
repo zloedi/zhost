@@ -138,7 +138,6 @@ void UT_RunApp( const char *orgName,
         utFrameParams_t params;
         quit = UT_ProcessEvents( &params );
         R_FrameBegin( clearColor );
-        CON_Frame();
 
         // store delta time
         int ms = SYS_SampleTime();
@@ -147,6 +146,9 @@ void UT_RunApp( const char *orgName,
 
         // app Frame before frame end
         SAFE_CALL( frame, &params );
+
+        // console on top of everything
+        CON_Frame();
 
         R_FrameEnd();
     } while ( ! quit );

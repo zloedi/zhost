@@ -19,6 +19,7 @@ typedef union {
 
 static const color_t colBlack = { { 0, 0, 0, 1 } };
 static const color_t colWhite = { { 1, 1, 1, 1 } };
+static const color_t colCyan = { { 0, 1, 1, 1 } };
 
 static inline color_t colorrgb( float r, float g, float b ) { 
     color_t c = { { r, g, b, 1 } };

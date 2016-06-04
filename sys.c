@@ -11,7 +11,7 @@ void SYS_ErrorBox( const char *fmt, ... ) {
     vsnprintf (buf, VA_SIZE, fmt, argptr);
     va_end (argptr);
     buf[VA_SIZE - 1] = '\0';
-    fprintf( stderr, "ERROR: %s\n", buf );
+    fprintf( stderr, "%s\n", buf );
     fflush( stderr );
     SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_WARNING, "Error!", buf, NULL );
     exit( -1 );

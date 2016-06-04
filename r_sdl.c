@@ -1,5 +1,9 @@
 #include "zhost.h"
 #define STB_IMAGE_IMPLEMENTATION
+#define STBI_ASSERT(x)
+#define STBI_MALLOC A_Malloc
+#define STBI_REALLOC A_Realloc
+#define STBI_FREE A_Free
 #include "stb_image.h"
 
 static varPtr_t r_windowWidth;
@@ -131,8 +135,8 @@ void R_Done() {
 
 rImage_t* R_LoadTexture( const char *pathToImage ) {
     const char *finalPath = va( "%sdata/%s", SYS_BaseDir(), pathToImage );
-    int x,y,n;
-    unsigned char *data = stbi_load( finalPath, &x, &y, &n, 0 );
+    int w, h, n;
+    unsigned char *data = stbi_load( finalPath, &w, &h, &n, 0 );
     // ... process data if not NULL ...
     // ... x = width, y = height, n = # 8-bit components per pixel ...
     // ... replace '0' with '1'..'4' to force that many components per pixel
@@ -140,10 +144,40 @@ rImage_t* R_LoadTexture( const char *pathToImage ) {
     rImage_t* result = &r_images[0];
     if ( data ) {
         CON_Printf( "R_LoadTexture: loaded image \"%s\"\n", pathToImage );
-        CON_Printf( " width:  %d\n", x );
-        CON_Printf( " height: %d\n", x );
+        CON_Printf( " width:  %d\n", w );
+        CON_Printf( " height: %d\n", h );
         CON_Printf( " bpp:    %d\n", n * 8 );
-        result = R_CreateStaticTexture( data, x, y, n );
+        int rgbaPitch = w * 4;
+        if ( n == 4 ) {
+            result = R_CreateStaticTexture( data, w, h );
+        } else {
+            CON_Printf( "R_LoadTexture: unsupported components per pixel %d; Converting to RGBA8888\n", n );
+            byte *rgbaData = A_Malloc( rgbaPitch * h );
+            int srcPitch = w * n;
+            for ( int y = 0; y < h; y++ ) {
+                for ( int xd = 0, xs = 0; xd < rgbaPitch; xd += 4, xs += n ) {
+                    switch ( n ) {
+                        case 3: 
+                            rgbaData[xd + 0 + y * rgbaPitch] = data[xs + 0 + y * srcPitch];
+                            rgbaData[xd + 1 + y * rgbaPitch] = data[xs + 1 + y * srcPitch];
+                            rgbaData[xd + 2 + y * rgbaPitch] = data[xs + 2 + y * srcPitch];
+                            rgbaData[xd + 3 + y * rgbaPitch] = 0xff;
+                            break;
+                        case 2:
+                            // TODO:
+                            break;
+                        case 1:
+                            rgbaData[xd + 0 + y * rgbaPitch] = 0xff;
+                            rgbaData[xd + 1 + y * rgbaPitch] = 0xff;
+                            rgbaData[xd + 2 + y * rgbaPitch] = 0xff;
+                            rgbaData[xd + 3 + y * rgbaPitch] = data[xs + 0 + y * srcPitch];
+                            break;
+                    }
+                }
+            }
+            result = R_CreateStaticTexture( rgbaData, w, h );
+            A_Free( rgbaData );
+        }
     } else {
         CON_Printf( "ERROR: R_LoadTexture: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
     }
@@ -151,22 +185,18 @@ rImage_t* R_LoadTexture( const char *pathToImage ) {
     return result;
 }
 
-// supports only RGBA8888 textures
-rImage_t* R_CreateStaticTexture( const byte *data, int width, int height, int bytesPerPixel ) {
+rImage_t* R_CreateStaticTexture( const byte *data, int width, int height ) {
     if ( r_numImages == R_MAX_TEXTURES ) {
         CON_Printf( "ERROR: R_CreateStaticTexture: out of textures" );
         return &r_images[0];
     }
-    if ( bytesPerPixel != 4 ) {
-        CON_Printf( "ERROR: R_CreateStaticTexture: unsupported components per pixel %d\n", bytesPerPixel );
-        return &r_images[0];
-    }
+    int rgbaPitch = width * 4;
     SDL_Texture *texture = SDL_CreateTexture( r_renderer, 
-            SDL_PIXELFORMAT_RGBA8888, 
+            SDL_PIXELFORMAT_ABGR8888, 
             SDL_TEXTUREACCESS_STATIC, 
             width, 
             height );
-    SDL_UpdateTexture( texture, NULL, data, width * 4 );
+    SDL_UpdateTexture( texture, NULL, data, rgbaPitch );
     rImage_t *img= &r_images[r_numImages];
     img->size = v2xy( width, height );
     img->texture = texture;
@@ -211,7 +241,7 @@ void R_InitEx( const char *windowTitle ) {
     r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
     // white pixel placeholder at index 0
     byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
-    R_CreateStaticTexture( whitePixel, 1, 1, 4 );
+    R_CreateStaticTexture( whitePixel, 1, 1 );
     CON_Printf( "Renderer initialized.\n" );
     R_PrintRendererInfo();
 }
