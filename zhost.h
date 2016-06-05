@@ -14,6 +14,7 @@ typedef struct {
 void UT_RunApp( const char *orgName, 
                 const char *appName,
                 const char *windowTitle,
+                bool_t showCursor,
                 color_t clearColor,
                 void (*registerVars)( void ),
                 void (*init)( void ),

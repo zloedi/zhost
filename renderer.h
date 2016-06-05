@@ -1,5 +1,7 @@
 typedef struct rImage_s rImage_t;
 
+extern rImage_t *r_fallbackTexture;
+
 void R_RegisterVars( void );
 void R_InitEx( const char *windowTitle );
 void R_Init( void );
@@ -26,5 +28,6 @@ void R_DrawPicV2( v2_t position,
                   rImage_t *img );
 
 rImage_t* R_LoadTexture( const char *pathToImage );
+rImage_t* R_LoadTextureEx( const char *pathToImage, int *outWidth, int *outHeight );
 rImage_t* R_CreateStaticTexture( const byte *data, int width, int height );
 v2_t R_GetWindowSize( void );

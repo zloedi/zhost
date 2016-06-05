@@ -6,8 +6,8 @@
 #define STBI_FREE A_Free
 #include "stb_image.h"
 
-static varPtr_t r_windowWidth;
-static varPtr_t r_windowHeight;
+static var_t *r_windowWidth;
+static var_t *r_windowHeight;
 
 v2_t r_windowSize;
 
@@ -15,6 +15,8 @@ struct rImage_s {
     v2_t size;
     SDL_Texture *texture;
 };
+
+rImage_t *r_fallbackTexture;
 
 #define R_MAX_TEXTURES 256
 
@@ -62,8 +64,8 @@ void R_DrawPic( float x, float y,
 
 void R_DrawPicV2( v2_t position,
                     v2_t size,
-                    v2_t stTopLeft,
-                    v2_t stBottomRight,
+                    v2_t st0,
+                    v2_t st1,
                     rImage_t *img ) {
     SDL_SetTextureColorMod( img->texture,
             ( Uint8 )( r_color.r * 255 ), 
@@ -71,12 +73,24 @@ void R_DrawPicV2( v2_t position,
             ( Uint8 )( r_color.b * 255 ) );
     SDL_SetTextureAlphaMod( img->texture, ( Uint8 )( r_color.alpha * 255 ) );
     SDL_SetTextureBlendMode( img->texture, SDL_BLENDMODE_BLEND );
-    v2_t st0 = v2xy( stTopLeft.x * img->size.x, stTopLeft.y * img->size.y );
-    v2_t st1 = v2xy( stBottomRight.x * img->size.x, stBottomRight.y * img->size.y );
-    v2_t stsz = v2Sub( st1, st0 );
+    SDL_RendererFlip flip = SDL_FLIP_NONE;
+    v2_t stmin = st0, stmax = st1;
+    if ( st0.x > st1.x ) {
+        flip |= SDL_FLIP_HORIZONTAL;
+        stmin.x = st1.x;
+        stmax.x = st0.x;
+    }
+    if ( st0.y > st1.y ) {
+        flip |= SDL_FLIP_VERTICAL;
+        stmin.y = st1.y; 
+        stmax.y = st0.y;
+    }
+    stmin = v2xy( stmin.x * img->size.x, stmin.y * img->size.y );
+    stmax = v2xy( stmax.x * img->size.x, stmax.y * img->size.y );
+    v2_t stsz = v2Sub( stmax, stmin );
     SDL_Rect src = {
-        .x = ( int )( st0.x + 0.5f ),
-        .y = ( int )( st0.y + 0.5f ),
+        .x = ( int )( stmin.x + 0.5f ),
+        .y = ( int )( stmin.y + 0.5f ),
         .w = ( int )( stsz.x + 0.5f ),
         .h = ( int )( stsz.y + 0.5f ),
     };
@@ -86,7 +100,15 @@ void R_DrawPicV2( v2_t position,
         .w = ( int )size.x,
         .h = ( int )size.y,
     };
-    SDL_RenderCopy( r_renderer, img->texture, &src, &dest );
+    //SDL_RenderCopy( r_renderer, img->texture, &src, &dest );
+    const SDL_Point zero = { 0, 0 };
+    SDL_RenderCopyEx( r_renderer,
+                      img->texture,
+                      &src,
+                      &dest,
+                      0,
+                      &zero,
+                      flip );
 }
 
 void R_SaveScreenshot() {
@@ -134,14 +156,19 @@ void R_Done() {
 }
 
 rImage_t* R_LoadTexture( const char *pathToImage ) {
+    return R_LoadTextureEx( pathToImage, NULL, NULL );
+}
+
+rImage_t* R_LoadTextureEx( const char *pathToImage, int *outWidth, int *outHeight ) {
     const char *finalPath = va( "%sdata/%s", SYS_BaseDir(), pathToImage );
-    int w, h, n;
+    // the fallback (white) texture is one pixes
+    int w = 1, h = 1, n;
     unsigned char *data = stbi_load( finalPath, &w, &h, &n, 0 );
     // ... process data if not NULL ...
     // ... x = width, y = height, n = # 8-bit components per pixel ...
     // ... replace '0' with '1'..'4' to force that many components per pixel
     // ... but 'n' will always be the number that it would have been if you said 0
-    rImage_t* result = &r_images[0];
+    rImage_t* result = r_fallbackTexture;
     if ( data ) {
         CON_Printf( "R_LoadTexture: loaded image \"%s\"\n", pathToImage );
         CON_Printf( " width:  %d\n", w );
@@ -182,13 +209,15 @@ rImage_t* R_LoadTexture( const char *pathToImage ) {
         CON_Printf( "ERROR: R_LoadTexture: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
     }
     stbi_image_free( data );
+    if ( outWidth )  *outWidth = w;
+    if ( outHeight ) *outHeight = h;
     return result;
 }
 
 rImage_t* R_CreateStaticTexture( const byte *data, int width, int height ) {
     if ( r_numImages == R_MAX_TEXTURES ) {
         CON_Printf( "ERROR: R_CreateStaticTexture: out of textures" );
-        return &r_images[0];
+        return r_fallbackTexture;
     }
     int rgbaPitch = width * 4;
     SDL_Texture *texture = SDL_CreateTexture( r_renderer, 
@@ -241,7 +270,7 @@ void R_InitEx( const char *windowTitle ) {
     r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
     // white pixel placeholder at index 0
     byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
-    R_CreateStaticTexture( whitePixel, 1, 1 );
+    r_fallbackTexture = R_CreateStaticTexture( whitePixel, 1, 1 );
     CON_Printf( "Renderer initialized.\n" );
     R_PrintRendererInfo();
 }

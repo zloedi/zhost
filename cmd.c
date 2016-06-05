@@ -7,7 +7,7 @@ static cmd_t *commands;
 static int  cmd_argc;
 static char *cmd_argv[CMD_MAX_ARGS];
 
-extern varPtr_t vars;
+extern var_t *vars;
 
 int CMD_Argc( void ) {
     return cmd_argc;
@@ -23,7 +23,7 @@ const char* CMD_Argv( int index ) {
 
 static char** CMD_List( const char *pattern ) {
     size_t     count = 1; // terminating NULL
-    varPtr_t   var;
+    var_t      *var;
     cmd_t      *cmd;
     char       **list;
  
@@ -116,7 +116,7 @@ static const char* CMD_Tokenize( const char *text ) {
 }
 
 static void CMD_ExecuteStringOV( const char *text, const char *param, bool_t keepOldValues ) {
-    varPtr_t   var;
+    var_t      *var;
     cmd_t      *cmd;
     const char *data;
     const char *cmdName;
@@ -297,7 +297,7 @@ bool_t CMD_Autocomplete( char *prompt, int maxLen, bool_t matchCommands ) {
             // we have typed the min match, print a list of matches
             CON_Printf( ">%s\n", prompt );
             for ( i = 0; list[i]; i++ ) {
-                varPtr_t v = VAR_Find( list[i] );
+                var_t *v = VAR_Find( list[i] );
                 
                 if ( v ) {
                     CON_Printf( "%s = \"%s\" (%s)\n", VAR_Name( v ), VAR_String( v ), VAR_Help( v ) );

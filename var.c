@@ -1,6 +1,6 @@
 #include "zhost.h"
 
-typedef struct var_s {
+struct var_s {
     struct var_s *next;
     char         *name;
     char         *help;
@@ -8,27 +8,27 @@ typedef struct var_s {
     varFlags_t   flags; 
     char         *string;
     float        number;
-} var_t;
+};
 
 var_t *vars;
 
-float VAR_Num( const varPtr_t var ) {
+float VAR_Num( const var_t *var ) {
     return var->number;
 }
 
-const char* VAR_String( const varPtr_t var ) {
+const char* VAR_String( const var_t *var ) {
     return var->string;
 }
 
-const char* VAR_Name( const varPtr_t var ) {
+const char* VAR_Name( const var_t *var ) {
     return var->name;
 }
 
-const char* VAR_Help( const varPtr_t var ) {
+const char* VAR_Help( const var_t *var ) {
     return var->help;
 }
 
-varPtr_t VAR_Next( const varPtr_t var ) {
+var_t* VAR_Next( const var_t *var ) {
     return var->next;
 }
 

@@ -3,8 +3,8 @@
 
 console_t con;
 
-static varPtr_t con_showLog;
-static varPtr_t con_showFontTexture;
+static var_t *con_showLog;
+static var_t *con_showFontTexture;
 
 void CON_Toggle( bool_t fullscreen ) {
     if ( con.show == CON_SHOW_NONE ) {

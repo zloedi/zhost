@@ -94,6 +94,7 @@ static bool_t UT_ProcessEvents( utFrameParams_t *outParams ) {
 void UT_RunApp( const char *orgName, 
                 const char *appName,
                 const char *windowTitle,
+                bool_t showCursor,
                 color_t clearColor,
                 void (*registerVars)( void ),
                 void (*init)( void ),
@@ -130,6 +131,8 @@ void UT_RunApp( const char *orgName,
 
     // app specific init
     SAFE_CALL( init );
+
+    SDL_ShowCursor( showCursor );
 
     // main loop
     bool_t quit = false;
