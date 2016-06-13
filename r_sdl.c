@@ -9,7 +9,7 @@
 static var_t *r_windowWidth;
 static var_t *r_windowHeight;
 
-v2_t r_windowSize;
+static v2_t r_windowSize;
 
 struct rImage_s {
     v2_t size;
