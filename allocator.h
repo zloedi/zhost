@@ -4,7 +4,7 @@
 
 typedef int ( *aPrintf_t )( const char *format, ... );
 typedef void ( *aFatalf_t )( const char *format, ... );
-void A_InitEx( aFatalf_t fatalFn, aPrintf_t printFn );
+void A_InitEx( aFatalf_t fatalFn, aPrintf_t printFn, size_t smallBinSize, size_t normalBinSize, size_t staticBinSize );
 void A_Init( void );
 void A_Done( void );
 

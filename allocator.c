@@ -4,17 +4,10 @@
 #define CHUNK_GUARD ((int)0xdeadf00d)
 
 // FIXME: make sure this is larger than sizeof( chunk_t );
-#define MIN_CHUNK_SIZE 64
+#define MIN_CHUNK_SIZE 128
 
-#if ( ! defined ALLOCATOR_STATIC_SIZE || ALLOCATOR_STATIC_SIZE < 8 )
-    #undef ALLOCATOR_STATIC_SIZE
-    #define ALLOCATOR_STATIC_SIZE  8
-#endif
-
-#if ( ! defined ALLOCATOR_DYNAMIC_SIZE || ALLOCATOR_DYNAMIC_SIZE < 16 )
-    #undef ALLOCATOR_DYNAMIC_SIZE
-    #define ALLOCATOR_DYNAMIC_SIZE  16
-#endif
+#define ALLOCATOR_STATIC_SIZE  8
+#define ALLOCATOR_DYNAMIC_SIZE  16
 
 #define STATIC_BIN_SIZE (ALLOCATOR_STATIC_SIZE*1024*1024)
 #define SMALL_BIN_SIZE  (128 * 1024)
@@ -109,23 +102,27 @@ static bin_t* A_NewBin( size_t size, const char *name ) {
     return bin;
 }
 
-void A_InitEx( aFatalf_t fatalFn, aPrintf_t printFn ) {
-    A_Init();
+void A_InitEx( aFatalf_t fatalFn, aPrintf_t printFn, size_t smallBinSize, size_t normalBinSize, size_t staticBinSize ) {
+    STATIC_ASSERT( MIN_CHUNK_SIZE > sizeof(chunk_t), min_chunk_size_should_be_larger_than_chunk_t );
     if ( fatalFn != NULL ) {
         a_fatalFn = fatalFn;
     }
     if ( printFn != NULL ) {
         a_printFn = printFn;
     }
-}
-
-void A_Init( void ) {
-    a_smallBin = A_NewBin( SMALL_BIN_SIZE, "SMALL" );
-    a_normalBin = A_NewBin( NORMAL_BIN_SIZE, "NORMAL" );
-    a_staticBin = A_NewBin( STATIC_BIN_SIZE, "STATIC" );
+    smallBinSize = smallBinSize == 0 ? SMALL_BIN_SIZE : smallBinSize;
+    normalBinSize = normalBinSize == 0 ? NORMAL_BIN_SIZE : normalBinSize;
+    staticBinSize = staticBinSize == 0 ? STATIC_BIN_SIZE : staticBinSize;
+    a_smallBin = A_NewBin( smallBinSize, "SMALL" );
+    a_normalBin = A_NewBin( normalBinSize, "NORMAL" );
+    a_staticBin = A_NewBin( staticBinSize, "STATIC" );
     a_printFn( "Memory allocator initialized %dM static mem, %dM dynamic mem\n", 
             ALLOCATOR_STATIC_SIZE, 
             ALLOCATOR_DYNAMIC_SIZE );
+}
+
+void A_Init( void ) {
+    A_InitEx( NULL, NULL, 0, 0, 0 );
 }
 
 static bin_t* A_GetBin( chunkType_t type ) {

@@ -107,7 +107,7 @@ void UT_RunApp( const char *orgName,
     }
 
     // allocator before all else
-    A_InitEx( SYS_ErrorBox, CON_Printf );
+    A_InitEx( SYS_ErrorBox, CON_Printf, 0, 0, 0 );
 
     // some core utilites are initialized without vars
     SYS_InitEx( orgName, appName );
