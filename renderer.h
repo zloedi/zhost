@@ -2,10 +2,12 @@ typedef struct rImage_s rImage_t;
 
 extern rImage_t *r_fallbackTexture;
 
+void R_SetClearColor( color_t color );
+void R_SetWindowTitle( const char *windowTitle );
+
 void R_RegisterVars( void );
-void R_InitEx( const char *windowTitle );
 void R_Init( void );
-void R_FrameBegin( color_t clearColor );
+void R_FrameBegin( void );
 void R_FrameEnd( void );
 void R_Done( void );
 void R_SaveScreenshot( void );
@@ -31,3 +33,4 @@ rImage_t* R_LoadTexture( const char *pathToImage );
 rImage_t* R_LoadTextureEx( const char *pathToImage, int *outWidth, int *outHeight );
 rImage_t* R_CreateStaticTexture( const byte *data, int width, int height );
 v2_t R_GetWindowSize( void );
+void R_ShowCursor( bool_t show );

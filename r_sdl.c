@@ -8,8 +8,8 @@
 
 static var_t *r_windowWidth;
 static var_t *r_windowHeight;
-
 static v2_t r_windowSize;
+static color_t r_clearColor;
 
 struct rImage_s {
     v2_t size;
@@ -123,15 +123,15 @@ static void R_PrintRendererInfo() {
     CON_Printf( " max texture height: %d\n", info.max_texture_height );
 }
 
-void R_FrameBegin( color_t clearColor ) {
+void R_FrameBegin( void ) {
     int w, h;
     SDL_GetWindowSize( r_window, &w, &h );
     r_windowSize = v2xy( w, h );
     SDL_SetRenderDrawColor( r_renderer,
-            ( Uint8 )( clearColor.r * 255 ), 
-            ( Uint8 )( clearColor.g * 255 ),
-            ( Uint8 )( clearColor.b * 255 ),
-            ( Uint8 )( clearColor.alpha * 255 ) );
+            ( Uint8 )( r_clearColor.r * 255 ), 
+            ( Uint8 )( r_clearColor.g * 255 ),
+            ( Uint8 )( r_clearColor.b * 255 ),
+            ( Uint8 )( r_clearColor.alpha * 255 ) );
     SDL_RenderClear( r_renderer );
 }
 
@@ -234,6 +234,14 @@ rImage_t* R_CreateStaticTexture( const byte *data, int width, int height ) {
     return img;
 }
 
+void R_ShowCursor( bool_t show ) {
+    SDL_ShowCursor( show );
+}
+
+void R_SetClearColor( color_t color ) {
+    r_clearColor = color;
+}
+
 v2_t R_GetWindowSize( void ) {
     return r_windowSize;
 }
@@ -243,15 +251,15 @@ void R_RegisterVars( void ) {
     r_windowHeight = VAR_RegisterHelp( "rWindowHeight", "768", "Window height on app start" );
 }
 
-void R_Init( void ) {
-    R_InitEx( "zhost app" );
+void R_SetWindowTitle( const char *windowTitle ) {
+    SDL_SetWindowTitle( r_window, windowTitle );
 }
 
-void R_InitEx( const char *windowTitle ) {
+void R_Init( void ) {
     if( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 ) {
         return SYS_ErrorBox( "R_InitEx: SDL could not initialize video! SDL Error: %s", SDL_GetError() );
     }
-    r_window = SDL_CreateWindow( windowTitle ? windowTitle : "missing window title",
+    r_window = SDL_CreateWindow( NULL,
                 SDL_WINDOWPOS_UNDEFINED, 
                 SDL_WINDOWPOS_UNDEFINED, 
                 ( int )Clampf( VAR_Num( r_windowWidth ), MIN_WINDOW_WIDTH, MAX_WINDOW_WIDTH ),
@@ -265,8 +273,6 @@ void R_InitEx( const char *windowTitle ) {
     if ( r_renderer == NULL ) {
         return SYS_ErrorBox( "Renderer could not be created! SDL Error: %s", SDL_GetError() );
     }
-    R_FrameBegin( colBlack );
-    R_FrameEnd();
     r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
     // white pixel placeholder at index 0
     byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };

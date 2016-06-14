@@ -11,95 +11,15 @@ static void UT_Done_f( void ) {
     SDL_Quit();
 }
 
-static void UT_ProcessKey( int code, bool_t down ) {
-    // try the console
-    if ( CON_OnKeyboard( code, down ) ) {
-        return;
-    }
-    // TODO:
-    // GUI widgets
-    //if ( WG_OnKeyboard( code, ch, down ) )
-    //  return;
-    // application specific callback
-    //if ( sys_onKeyCallback( code, ch, down) )
-    //  return;
-    // command key bindings
-    //K_OnKeyboard( code, down );
-}
-
-static bool_t UT_ProcessEvents( utFrameParams_t *outParams ) {
-    bool_t quit = false;
-    SDL_Event event;
-    while ( SDL_PollEvent( &event ) ) {
-        int code = event.key.keysym.sym;
-        static bool_t laltDown, raltDown, ctlDown;
-        switch (event.type) {
-            case SDL_TEXTINPUT:
-                CON_OnText( event.text.text );
-                break;
-
-            case SDL_KEYDOWN:
-                if ( code == SDLK_LCTRL || code == SDLK_RCTRL ) {
-                    ctlDown = true;
-                } else if ( code == SDLK_LALT ) {
-                    laltDown = true;
-                } else if ( code == SDLK_RALT ) {
-                    raltDown = true;
-                }
-                // quit on alt + F4 is hardcoded
-                if ( ( raltDown || laltDown ) && code == SDLK_F4 ) {
-                    quit = true;
-                }
-                // console toggle is hardcoded
-                else if ( code == SDLK_BACKQUOTE ) {
-                    CON_Toggle( ctlDown );
-                } 
-                else {
-                    UT_ProcessKey( code, true );
-                }
-                break;
-
-            case SDL_KEYUP:
-                if ( code == SDLK_LCTRL || code == SDLK_RCTRL ) {
-                    ctlDown = false;
-                } else if ( code == SDLK_LALT ) {
-                    laltDown = false;
-                } else if ( code == SDLK_RALT ) {
-                    raltDown = false;
-                } 
-                // printscreen is hardcoded
-                if ( code == SDLK_PRINTSCREEN || code == SDLK_SYSREQ ) {
-                    R_SaveScreenshot();
-                } 
-                else {
-                    UT_ProcessKey( code, false );
-                }
-                break;
-
-            case SDL_QUIT:
-                quit = true;
-                break;
-
-            default:;
-        }
-    }
-    int x, y;
-    SDL_GetMouseState( &x, &y );
-    outParams->cursorPosition = v2xy( x, y );
-    return quit;
-}
-
 #define SAFE_CALL(f,...) (f?f(__VA_ARGS__):f)
 
-void UT_RunApp( const char *orgName, 
-                const char *appName,
-                const char *windowTitle,
-                bool_t showCursor,
-                color_t clearColor,
-                void (*registerVars)( void ),
-                void (*init)( void ),
-                void (*frame)( const utFrameParams_t* ),
-                void (*done)( void ) ) {
+void UT_Init( const char *orgName, 
+              const char *appName, 
+              size_t staticMem, 
+              size_t dynamicMem,
+              void (*registerVars)( void ),
+              void (*init)( void ),
+              void (*done)( void ) ) {
     // functions registered with atexit are called in reverse order
     atexit( UT_Done_f );
     if ( done ) {
@@ -124,35 +44,40 @@ void UT_RunApp( const char *orgName,
     VAR_ReadCfg();
 
     // Inits come after the vars are read and overwritten
-    R_InitEx( windowTitle );
+    R_Init();
+    R_SetClearColor( colorrgb( 0.1, 0.1, 0.1 ) );
 
     // some parts of the console need a working renderer
     CON_Start();
 
     // app specific init
     SAFE_CALL( init );
+}
 
-    SDL_ShowCursor( showCursor );
-
-    // main loop
+// sample loop, write your own if you need more control
+void UT_Loop( void(*frame)( void ) ) {
     bool_t quit = false;
-    int milliseconds = SYS_RealTime();
+    SYS_SampleTime();
     do {
-        utFrameParams_t params;
-        quit = UT_ProcessEvents( &params );
-        R_FrameBegin( clearColor );
-
-        // store delta time
-        int ms = SYS_SampleTime();
-        params.timeDelta = ms - milliseconds;
-        milliseconds = ms;
-
+        quit = E_DispatchEvents();
+        R_FrameBegin();
+        SYS_SampleTime();
         // app Frame before frame end
-        SAFE_CALL( frame, &params );
-
+        SAFE_CALL( frame );
         // console on top of everything
         CON_Frame();
-
         R_FrameEnd();
     } while ( ! quit );
+}
+
+// this is the fastest way to setup a zhost app
+// just call this one in your main() and you are set
+void UT_RunApp( const char *appName,
+                void (*registerVars)( void ),
+                void (*init)( void ),
+                void (*frame)( void ),
+                void (*done)( void ) ) {
+    UT_Init( NULL, appName, 0, 0, registerVars, init, done );
+    R_SetWindowTitle( appName );
+    UT_Loop( frame );
 }
