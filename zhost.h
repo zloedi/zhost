@@ -6,6 +6,15 @@
 #include "events.h"
 #include "input.h"
 
+void UT_Init( const char *appName, 
+              size_t dynamicMem,
+              size_t staticMem, 
+              void (*registerVars)( void ),
+              void (*init)( void ),
+              void (*done)( void ) );
+
+void UT_Loop( void(*frame)( void ) );
+
 void UT_RunApp( const char *appName,
                 void (*registerVars)( void ),
                 void (*init)( void ),

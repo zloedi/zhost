@@ -13,10 +13,9 @@ static void UT_Done_f( void ) {
 
 #define SAFE_CALL(f,...) (f?f(__VA_ARGS__):f)
 
-void UT_Init( const char *orgName, 
-              const char *appName, 
-              size_t staticMem, 
+void UT_Init( const char *appName, 
               size_t dynamicMem,
+              size_t staticMem, 
               void (*registerVars)( void ),
               void (*init)( void ),
               void (*done)( void ) ) {
@@ -27,10 +26,10 @@ void UT_Init( const char *orgName,
     }
 
     // allocator before all else
-    A_InitEx( SYS_ErrorBox, CON_Printf, 0, 0, 0 );
+    A_InitEx( SYS_ErrorBox, CON_Printf, 0, dynamicMem, staticMem );
 
     // some core utilites are initialized without vars
-    SYS_InitEx( orgName, appName );
+    SYS_InitEx( NULL, appName );
     CON_Init();
     CMD_Init();
     VAR_Init();
@@ -77,7 +76,7 @@ void UT_RunApp( const char *appName,
                 void (*init)( void ),
                 void (*frame)( void ),
                 void (*done)( void ) ) {
-    UT_Init( NULL, appName, 0, 0, registerVars, init, done );
+    UT_Init( appName, 0, 0, registerVars, init, done );
     R_SetWindowTitle( appName );
     UT_Loop( frame );
 }
