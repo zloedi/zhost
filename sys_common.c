@@ -52,7 +52,7 @@ void SYS_InitEx( const char* organizationName, const char *appName ) {
         SYS_ErrorBox( "SYS_Init: SDL could not initialize! SDL Error: %s", SDL_GetError() );
     }
     SYS_SampleTime();
-    sys_prefsDir = SDL_GetPrefPath( organizationName ? organizationName : "zloedi", appName ? appName : "zhost" );
+    sys_prefsDir = SDL_GetPrefPath( organizationName ? organizationName : "zhost", appName ? appName : "zhost" );
     sys_baseDir = SDL_GetBasePath();
     if ( ! sys_baseDir ) {
         sys_baseDir = A_StrDup( "./" );
