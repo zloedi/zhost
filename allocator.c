@@ -6,12 +6,9 @@
 // FIXME: make sure this is larger than sizeof( chunk_t );
 #define MIN_CHUNK_SIZE 128
 
-#define ALLOCATOR_STATIC_SIZE  8
-#define ALLOCATOR_DYNAMIC_SIZE  16
-
-#define STATIC_BIN_SIZE (ALLOCATOR_STATIC_SIZE*1024*1024)
+#define STATIC_BIN_SIZE (8*1024*1024)
 #define SMALL_BIN_SIZE  (128 * 1024)
-#define NORMAL_BIN_SIZE (ALLOCATOR_DYNAMIC_SIZE*1024*1024 - SMALL_BIN_SIZE)
+#define NORMAL_BIN_SIZE (16*1024*1024)
 
 typedef struct {
     const char *label;
@@ -80,7 +77,7 @@ static bin_t* A_NewBin( size_t size, const char *name ) {
     bin_t   *bin;
     chunk_t *chunk;
 
-    bin = calloc( size, 1 );
+    bin = malloc( size );
 
     chunk = ( chunk_t* )( bin + 1 );
     
@@ -116,9 +113,11 @@ void A_InitEx( aFatalf_t fatalFn, aPrintf_t printFn, size_t smallBinSize, size_t
     a_smallBin = A_NewBin( smallBinSize, "SMALL" );
     a_normalBin = A_NewBin( normalBinSize, "NORMAL" );
     a_staticBin = A_NewBin( staticBinSize, "STATIC" );
-    a_printFn( "Memory allocator initialized %dM static mem, %dM dynamic mem\n", 
-            ALLOCATOR_STATIC_SIZE, 
-            ALLOCATOR_DYNAMIC_SIZE );
+    float mb = 1024. * 1024.;
+    a_printFn( "Memory allocator initialized %dKb small bin, %.1fMb normal bin, %.1fMb static bin\n", 
+                smallBinSize / 1024, 
+                normalBinSize / mb, 
+                staticBinSize / mb );
 }
 
 void A_Init( void ) {
