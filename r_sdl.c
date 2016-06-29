@@ -111,6 +111,13 @@ void R_DrawPicV2( v2_t position,
                       flip );
 }
 
+rImage_t* R_BlankTexture( void ) {
+    return r_fallbackTexture;
+}
+
+void R_BlitToTexture( rImage_t *image, byte *bitmap, int width, int height, int bytesPerPixel ) {
+}
+
 void R_SaveScreenshot() {
     CON_Printf( "R_SaveScreenshot not implemented" );
 }
@@ -156,10 +163,10 @@ void R_Done() {
 }
 
 rImage_t* R_LoadTexture( const char *pathToImage ) {
-    return R_LoadTextureEx( pathToImage, NULL, NULL );
+    return R_LoadTextureEx( pathToImage, NULL );
 }
 
-rImage_t* R_LoadTextureEx( const char *pathToImage, int *outWidth, int *outHeight ) {
+rImage_t* R_LoadTextureEx( const char *pathToImage, v2_t *outSize ) {
     const char *finalPath = va( "%sdata/%s", SYS_BaseDir(), pathToImage );
     // the fallback (white) texture is one pixes
     int w = 1, h = 1, n;
@@ -170,7 +177,7 @@ rImage_t* R_LoadTextureEx( const char *pathToImage, int *outWidth, int *outHeigh
     // ... but 'n' will always be the number that it would have been if you said 0
     rImage_t* result = r_fallbackTexture;
     if ( data ) {
-        CON_Printf( "R_LoadTexture: loaded image \"%s\"\n", pathToImage );
+        CON_Printf( "R_LoadTextureEx: loaded image \"%s\"\n", pathToImage );
         CON_Printf( " width:  %d\n", w );
         CON_Printf( " height: %d\n", h );
         CON_Printf( " bpp:    %d\n", n * 8 );
@@ -178,7 +185,7 @@ rImage_t* R_LoadTextureEx( const char *pathToImage, int *outWidth, int *outHeigh
         if ( n == 4 ) {
             result = R_CreateStaticTexture( data, w, h );
         } else {
-            CON_Printf( "R_LoadTexture: unsupported components per pixel %d; Converting to RGBA8888\n", n );
+            CON_Printf( "R_LoadTextureEx: unsupported components per pixel %d; Converting to RGBA8888\n", n );
             byte *rgbaData = A_Malloc( rgbaPitch * h );
             int srcPitch = w * n;
             for ( int y = 0; y < h; y++ ) {
@@ -206,11 +213,12 @@ rImage_t* R_LoadTextureEx( const char *pathToImage, int *outWidth, int *outHeigh
             A_Free( rgbaData );
         }
     } else {
-        CON_Printf( "ERROR: R_LoadTexture: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
+        CON_Printf( "ERROR: R_LoadTextureEx: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
     }
     stbi_image_free( data );
-    if ( outWidth )  *outWidth = w;
-    if ( outHeight ) *outHeight = h;
+    if ( outSize ) {
+        *outSize = v2xy( w, h );
+    }
     return result;
 }
 
@@ -221,10 +229,9 @@ rImage_t* R_CreateStaticTexture( const byte *data, int width, int height ) {
     }
     int rgbaPitch = width * 4;
     SDL_Texture *texture = SDL_CreateTexture( r_renderer, 
-            SDL_PIXELFORMAT_ABGR8888, 
-            SDL_TEXTUREACCESS_STATIC, 
-            width, 
-            height );
+                                              SDL_PIXELFORMAT_ABGR8888, 
+                                              SDL_TEXTUREACCESS_STATIC, 
+                                              width, height );
     SDL_UpdateTexture( texture, NULL, data, rgbaPitch );
     rImage_t *img= &r_images[r_numImages];
     img->size = v2xy( width, height );

@@ -36,12 +36,14 @@ const char* COM_StrBefore( const char *text, const char *delimiter, const char *
 const char* COM_StrAfter( const char *text, const char *delimiter, const char **outAfter );
 void COM_Split( const char *text, const char *delimiter, const char **outBefore, const char **outAfter );
 
-//void COM_SRand( unsigned seed );
-//int COM_Rand( void );
-//static inline int COM_RandInRange( int min, int max ) {
-//    if ( min == max ) {
-//        return min;
-//    }
-//    return min + COM_Rand() % ( max - min );
-//}
+void COM_SRand( unsigned seed );
+int COM_Rand( void );
+static inline int COM_RandInRange( int min, int max ) {
+    if ( min == max ) {
+        return min;
+    }
+    return min + COM_Rand() % ( max - min );
+}
 
+void COM_FloodFill( int x, int y, int winX0, int winY0, int winX1, int winY1, float color, int destWidth, int destHeight, float *dest );
+void COM_RasterizeRectangle8( c2_t topLeft, c2_t size, byte color, c2_t destSize, byte *dest );
