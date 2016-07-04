@@ -102,7 +102,7 @@ void COND_RegisterVars( void ) {
 }
 
 void COND_Start( void ) {
-    cond_fontTexture = R_CreateStaticTexture( con_fontBitmap, 256, 256 );
+    cond_fontTexture = R_CreateStaticTexture( con_fontBitmap, c2xy( 256, 256 ), 4 );
 }
 
 void COND_Stop( void ) {

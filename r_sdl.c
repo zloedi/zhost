@@ -12,7 +12,7 @@ static v2_t r_windowSize;
 static color_t r_clearColor;
 
 struct rImage_s {
-    v2_t size;
+    c2_t size;
     SDL_Texture *texture;
 };
 
@@ -111,11 +111,55 @@ void R_DrawPicV2( v2_t position,
                       flip );
 }
 
-rImage_t* R_BlankTexture( void ) {
-    return r_fallbackTexture;
+rImage_t* R_BlankStaticTexture( void ) {
+    byte pixel = { 0xff };
+    return R_CreateStaticTexture( &pixel, c2xy( 1, 1 ), 1 );
 }
 
-void R_BlitToTexture( rImage_t *image, byte *bitmap, int width, int height, int bytesPerPixel ) {
+static byte* R_ConvertTextureToRGBA( const byte* src, c2_t srcSz, int srcBytesPerPixel, int *outRGBAPitch ) {
+    int rgbaPitch = srcSz.x * 4;
+    byte *result = A_Malloc( rgbaPitch * srcSz.y );
+    int srcPitch = srcSz.x * srcBytesPerPixel;
+    if ( srcBytesPerPixel == 3 ) {
+        for ( int y = 0; y < srcSz.y; y++ ) {
+            for ( int xd = 0, xs = 0; xd < rgbaPitch; xd += 4, xs += srcBytesPerPixel ) {
+                result[xd + 0 + y * rgbaPitch] = src[xs + 0 + y * srcPitch];
+                result[xd + 1 + y * rgbaPitch] = src[xs + 1 + y * srcPitch];
+                result[xd + 2 + y * rgbaPitch] = src[xs + 2 + y * srcPitch];
+                result[xd + 3 + y * rgbaPitch] = 0xff;
+            }
+        }
+    } else if ( srcBytesPerPixel == 1 ) {
+        for ( int y = 0; y < srcSz.y; y++ ) {
+            for ( int xd = 0, xs = 0; xd < rgbaPitch; xd += 4, xs += srcBytesPerPixel ) {
+                result[xd + 0 + y * rgbaPitch] = 0xff;
+                result[xd + 1 + y * rgbaPitch] = 0xff;
+                result[xd + 2 + y * rgbaPitch] = 0xff;
+                result[xd + 3 + y * rgbaPitch] = src[xs + 0 + y * srcPitch];
+            }
+        }
+    }
+    *outRGBAPitch = rgbaPitch;
+    return result;
+}
+
+void R_BlitToTexture( rImage_t *image, const byte *data, c2_t size, int bytesPerPixel ) {
+    if ( ! c2Equal( size, image->size ) ) {
+        if ( image->texture ) {
+            SDL_DestroyTexture( image->texture );
+        }
+        image->texture = SDL_CreateTexture( r_renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, 
+                                                  size.x, size.y );
+        image->size = size;
+    }
+    if ( bytesPerPixel == 4 ) {
+        SDL_UpdateTexture( image->texture, NULL, data, size.x * 4 );
+    } else {
+        int rgbaPitch;
+        byte *rgbaData = R_ConvertTextureToRGBA( data, size, bytesPerPixel, &rgbaPitch );
+        SDL_UpdateTexture( image->texture, NULL, rgbaData, rgbaPitch );
+        A_Free( rgbaData );
+    }
 }
 
 void R_SaveScreenshot() {
@@ -162,82 +206,47 @@ void R_Done() {
     CON_Printf( "Renderer done.\n" );
 }
 
-rImage_t* R_LoadTexture( const char *pathToImage ) {
-    return R_LoadTextureEx( pathToImage, NULL );
+rImage_t* R_LoadStaticTexture( const char *pathToImage ) {
+    return R_LoadStaticTextureEx( pathToImage, NULL );
 }
 
-rImage_t* R_LoadTextureEx( const char *pathToImage, v2_t *outSize ) {
+rImage_t* R_LoadStaticTextureEx( const char *pathToImage, v2_t *outSize ) {
     const char *finalPath = va( "%sdata/%s", SYS_BaseDir(), pathToImage );
-    // the fallback (white) texture is one pixes
-    int w = 1, h = 1, n;
-    unsigned char *data = stbi_load( finalPath, &w, &h, &n, 0 );
+    // the fallback (white) texture is one on one pixel
+    c2_t sz = c2xy( 1, 1 );
+    int n;
+    rImage_t* result = r_fallbackTexture;
+    unsigned char *data = stbi_load( finalPath, &sz.x, &sz.y, &n, 0 );
     // ... process data if not NULL ...
     // ... x = width, y = height, n = # 8-bit components per pixel ...
     // ... replace '0' with '1'..'4' to force that many components per pixel
     // ... but 'n' will always be the number that it would have been if you said 0
-    rImage_t* result = r_fallbackTexture;
     if ( data ) {
-        CON_Printf( "R_LoadTextureEx: loaded image \"%s\"\n", pathToImage );
-        CON_Printf( " width:  %d\n", w );
-        CON_Printf( " height: %d\n", h );
+        CON_Printf( "R_LoadStaticTextureEx: loaded image \"%s\"\n", pathToImage );
+        CON_Printf( " width:  %d\n", sz.x );
+        CON_Printf( " height: %d\n", sz.y );
         CON_Printf( " bpp:    %d\n", n * 8 );
-        int rgbaPitch = w * 4;
-        if ( n == 4 ) {
-            result = R_CreateStaticTexture( data, w, h );
-        } else {
-            CON_Printf( "R_LoadTextureEx: unsupported components per pixel %d; Converting to RGBA8888\n", n );
-            byte *rgbaData = A_Malloc( rgbaPitch * h );
-            int srcPitch = w * n;
-            for ( int y = 0; y < h; y++ ) {
-                for ( int xd = 0, xs = 0; xd < rgbaPitch; xd += 4, xs += n ) {
-                    switch ( n ) {
-                        case 3: 
-                            rgbaData[xd + 0 + y * rgbaPitch] = data[xs + 0 + y * srcPitch];
-                            rgbaData[xd + 1 + y * rgbaPitch] = data[xs + 1 + y * srcPitch];
-                            rgbaData[xd + 2 + y * rgbaPitch] = data[xs + 2 + y * srcPitch];
-                            rgbaData[xd + 3 + y * rgbaPitch] = 0xff;
-                            break;
-                        case 2:
-                            // TODO:
-                            break;
-                        case 1:
-                            rgbaData[xd + 0 + y * rgbaPitch] = 0xff;
-                            rgbaData[xd + 1 + y * rgbaPitch] = 0xff;
-                            rgbaData[xd + 2 + y * rgbaPitch] = 0xff;
-                            rgbaData[xd + 3 + y * rgbaPitch] = data[xs + 0 + y * srcPitch];
-                            break;
-                    }
-                }
-            }
-            result = R_CreateStaticTexture( rgbaData, w, h );
-            A_Free( rgbaData );
-        }
+        result = R_CreateStaticTexture( data, sz, n );
     } else {
-        CON_Printf( "ERROR: R_LoadTextureEx: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
+        CON_Printf( "ERROR: R_LoadStaticTextureEx: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
     }
     stbi_image_free( data );
     if ( outSize ) {
-        *outSize = v2xy( w, h );
+        *outSize = v2c2( sz );
     }
     return result;
 }
 
-rImage_t* R_CreateStaticTexture( const byte *data, int width, int height ) {
+rImage_t* R_CreateStaticTexture( const byte *data, c2_t size, int bytesPerPixel ) {
     if ( r_numImages == R_MAX_TEXTURES ) {
         CON_Printf( "ERROR: R_CreateStaticTexture: out of textures" );
         return r_fallbackTexture;
     }
-    int rgbaPitch = width * 4;
-    SDL_Texture *texture = SDL_CreateTexture( r_renderer, 
-                                              SDL_PIXELFORMAT_ABGR8888, 
-                                              SDL_TEXTUREACCESS_STATIC, 
-                                              width, height );
-    SDL_UpdateTexture( texture, NULL, data, rgbaPitch );
-    rImage_t *img= &r_images[r_numImages];
-    img->size = v2xy( width, height );
-    img->texture = texture;
+    rImage_t *img = &r_images[r_numImages];
+    memset( img, 0, sizeof( *img ) );
+    R_BlitToTexture( img, data, size, bytesPerPixel );
     r_numImages++;
-    CON_Printf( "R_CreateStaticTexture: created texture. size: %d,%d\n", width, height );
+    CON_Printf( "R_CreateStaticTexture: created texture. size: %d,%d\n", size.x, size.y );
     return img;
 }
 
@@ -276,14 +285,13 @@ void R_Init( void ) {
         return SYS_ErrorBox( "Window could not be created! SDL Error: %s", SDL_GetError() );
     }
     SDL_SetHint( SDL_HINT_RENDER_DRIVER, "opengl" );
-    r_renderer = SDL_CreateRenderer( r_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+    r_renderer = SDL_CreateRenderer( r_window, -1, SDL_RENDERER_ACCELERATED );
     if ( r_renderer == NULL ) {
         return SYS_ErrorBox( "Renderer could not be created! SDL Error: %s", SDL_GetError() );
     }
     r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
     // white pixel placeholder at index 0
-    byte whitePixel[] = { 0xff, 0xff, 0xff, 0xff };
-    r_fallbackTexture = R_CreateStaticTexture( whitePixel, 1, 1 );
+    r_fallbackTexture = R_BlankStaticTexture();
     CON_Printf( "Renderer initialized.\n" );
     R_PrintRendererInfo();
 }

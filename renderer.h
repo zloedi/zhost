@@ -29,11 +29,11 @@ void R_DrawPicV2( v2_t position,
                   v2_t stBottomRight,
                   rImage_t *img );
 
-rImage_t* R_BlankTexture( void );
-void R_BlitToTexture( rImage_t *image, byte *bitmap, int width, int height, int bytesPerPixel );
+void R_BlitToTexture( rImage_t *image, const byte *data, c2_t size, int bytesPerPixel );
 
-rImage_t* R_LoadTexture( const char *pathToImage );
-rImage_t* R_LoadTextureEx( const char *pathToImage, v2_t *outSize );
-rImage_t* R_CreateStaticTexture( const byte *data, int width, int height );
+rImage_t* R_BlankStaticTexture( void );
+rImage_t* R_LoadStaticTexture( const char *pathToImage );
+rImage_t* R_LoadStaticTextureEx( const char *pathToImage, v2_t *outSize );
+rImage_t* R_CreateStaticTexture( const byte *data, c2_t size, int bytesPerPixel );
 v2_t R_GetWindowSize( void );
 void R_ShowCursor( bool_t show );
