@@ -419,6 +419,7 @@ static inline void DbgDump( const void *mem, size_t numBytes ) {
 #define PrintSizeT(s)        DbgPrint("%s: %zu\n",#s,(size_t)(s))
 #define PrintPointer(p)      DbgPrint("%s: %p\n",#p,(void*)(p))
 #define PrintString(s)       DbgPrint("%s: \"%s\"\n",#s,(s))
+#define PrintV2(v)           DbgPrint("%s: %f %f\n",#v,(v).x,(v).y);
 #define PrintColor(c)        DbgPrint("%s: %f %f %f %f\n",#c,(c).r,(c).g,(c).b,(c).a);
 #define PrintMem(m,n)        DbgDump((m),(n));
 
