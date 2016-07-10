@@ -263,8 +263,8 @@ v2_t R_GetWindowSize( void ) {
 }
 
 void R_RegisterVars( void ) {
-    r_windowWidth = VAR_RegisterHelp( "rWindowWidth", "1024", "Window width on app start" );
-    r_windowHeight = VAR_RegisterHelp( "rWindowHeight", "768", "Window height on app start" );
+    r_windowWidth = VAR_RegisterHelp( "r_windowWidth", "1024", "Window width on app start" );
+    r_windowHeight = VAR_RegisterHelp( "r_windowHeight", "768", "Window height on app start" );
 }
 
 void R_SetWindowTitle( const char *windowTitle ) {
