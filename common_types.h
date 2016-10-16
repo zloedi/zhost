@@ -284,9 +284,7 @@ static inline c2_t c2xy( int x, int y ) {
     return c;
 }
 
-static inline c2_t c2Zero( void ) {
-    return c2xy( 0, 0 );
-}
+static const c2_t c2Zero = { .a = { 0, 0 } };
 
 static inline v2_t v2c2( c2_t c ) {
     return v2xy( ( float )c.x, ( float )c.y );
@@ -419,9 +417,10 @@ static inline void DbgDump( const void *mem, size_t numBytes ) {
 #define PrintSizeT(s)        DbgPrint("%s: %zu\n",#s,(size_t)(s))
 #define PrintPointer(p)      DbgPrint("%s: %p\n",#p,(void*)(p))
 #define PrintString(s)       DbgPrint("%s: \"%s\"\n",#s,(s))
-#define PrintV2(v)           DbgPrint("%s: %f %f\n",#v,(v).x,(v).y);
-#define PrintColor(c)        DbgPrint("%s: %f %f %f %f\n",#c,(c).r,(c).g,(c).b,(c).a);
-#define PrintMem(m,n)        DbgDump((m),(n));
+#define PrintV2(v)           DbgPrint("%s: %f,%f\n",#v,(v).x,(v).y)
+#define PrintC2(c)           DbgPrint("%s: %d,%d\n",#c,(c).x,(c).y)
+#define PrintColor(c)        DbgPrint("%s: %f %f %f %f\n",#c,(c).r,(c).g,(c).b,(c).a)
+#define PrintMem(m,n)        DbgDump((m),(n))
 
 #define STATIC_ASSERT(expr, msg)               \
 {                                              \
