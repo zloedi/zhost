@@ -284,7 +284,7 @@ static inline c2_t c2xy( int x, int y ) {
     return c;
 }
 
-static const c2_t c2Zero = { .a = { 0, 0 } };
+static const c2_t c2zero = { .a = { 0, 0 } };
 
 static inline v2_t v2c2( c2_t c ) {
     return v2xy( ( float )c.x, ( float )c.y );
