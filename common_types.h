@@ -285,6 +285,7 @@ static inline c2_t c2xy( int x, int y ) {
 }
 
 static const c2_t c2zero = { .a = { 0, 0 } };
+static const c2_t c2one = { .a = { 1, 1 } };
 
 static inline v2_t v2c2( c2_t c ) {
     return v2xy( ( float )c.x, ( float )c.y );
@@ -320,6 +321,10 @@ static inline int c2CrossC( c2_t a, c2_t b ) {
 
 static inline c2_t c2Muls( c2_t a, int s ) {
     return c2xy( a.x * s, a.y * s );
+}
+
+static inline c2_t c2Mul( c2_t a, c2_t b ) {
+    return c2xy( a.x * b.x, a.y * b.y );
 }
 
 static inline c2_t c2Div( c2_t a, c2_t b ) {
@@ -386,6 +391,10 @@ static inline c2_t c2Clamps( c2_t c, int min, int max ) {
 
 static inline c2_t c2Clamp( c2_t c, c2_t min, c2_t max ) {
     return c2xy( Clampi( c.x, min.x, max.x ), Clampi( c.y, min.y, max.y ) );
+}
+
+static inline int c2SqrLen( c2_t c ) {
+    return c2Dot( c, c );
 }
 
 static inline void DbgPrint( const char *fmt, ... ) {
