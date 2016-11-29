@@ -319,10 +319,6 @@ static inline int c2CrossC( c2_t a, c2_t b ) {
     return a.x * b.y - a.y * b.x;
 }
 
-static inline c2_t c2Muls( c2_t a, int s ) {
-    return c2xy( a.x * s, a.y * s );
-}
-
 static inline c2_t c2Mul( c2_t a, c2_t b ) {
     return c2xy( a.x * b.x, a.y * b.y );
 }
