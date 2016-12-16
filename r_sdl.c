@@ -296,11 +296,25 @@ void R_Init( void ) {
     R_PrintRendererInfo();
 }
 
+//=============================================================================================
+
+static v2_t r_dbgLinePt;
+
 void R_DBGLine( v2_t start, v2_t end ) {
+    R_DBGLineBegin( start );
+    R_DBGLineTo( end );
+}
+
+void R_DBGLineBegin( v2_t start ) {
+    r_dbgLinePt = start;
+}
+
+void R_DBGLineTo( v2_t pt ) {
     SDL_SetRenderDrawColor( r_renderer,
             ( Uint8 )( r_color.r * 255 ), 
             ( Uint8 )( r_color.g * 255 ),
             ( Uint8 )( r_color.b * 255 ),
             ( Uint8 )( r_color.alpha * 255 ) );
-    SDL_RenderDrawLine( r_renderer, start.x, start.y, end.x, end.y );
+    SDL_RenderDrawLine( r_renderer, r_dbgLinePt.x, r_dbgLinePt.y, pt.x, pt.y );
+    r_dbgLinePt = pt;
 }

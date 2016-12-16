@@ -39,3 +39,5 @@ v2_t R_GetWindowSize( void );
 void R_ShowCursor( bool_t show );
 
 void R_DBGLine( v2_t start, v2_t end );
+void R_DBGLineBegin( v2_t start );
+void R_DBGLineTo( v2_t pt );
