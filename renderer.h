@@ -37,3 +37,5 @@ rImage_t* R_LoadStaticTextureEx( const char *pathToImage, v2_t *outSize );
 rImage_t* R_CreateStaticTexture( const byte *data, c2_t size, int bytesPerPixel );
 v2_t R_GetWindowSize( void );
 void R_ShowCursor( bool_t show );
+
+void R_DBGLine( v2_t start, v2_t end );
