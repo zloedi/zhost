@@ -34,7 +34,7 @@ void R_Color( float red, float green, float blue, float alpha ) {
     r_color = colorrgba( red, green, blue, alpha );
 }
 
-void R_SolidRect( float x, float y, float width, float height ) {
+void R_BlendRect( float x, float y, float width, float height ) {
     SDL_SetRenderDrawColor( r_renderer,
             ( Uint8 )( r_color.r * 255 ), 
             ( Uint8 )( r_color.g * 255 ),
@@ -50,19 +50,19 @@ void R_SolidRect( float x, float y, float width, float height ) {
     SDL_RenderFillRect( r_renderer, &rect );
 }
 
-void R_DrawPic( float x, float y,
+void R_BlendPic( float x, float y,
                   float width, float height,
                   float s0, float t0,
                   float s1, float t1,
                   rImage_t *img ) {
-    R_DrawPicV2( v2xy( x, y ),
+    R_BlendPicV2( v2xy( x, y ),
                    v2xy( width, height ),
                    v2xy( s0, t0 ),
                    v2xy( s1, t1 ),
                    img );
 }
 
-void R_DrawPicV2( v2_t position,
+void R_BlendPicV2( v2_t position,
                     v2_t size,
                     v2_t st0,
                     v2_t st1,
@@ -310,6 +310,7 @@ void R_DBGLineBegin( v2_t start ) {
 }
 
 void R_DBGLineTo( v2_t pt ) {
+    SDL_SetRenderDrawBlendMode( r_renderer, SDL_BLENDMODE_BLEND );
     SDL_SetRenderDrawColor( r_renderer,
             ( Uint8 )( r_color.r * 255 ), 
             ( Uint8 )( r_color.g * 255 ),

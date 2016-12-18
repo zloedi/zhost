@@ -11,7 +11,7 @@ void COND_DrawChar( int x, int y, int c ) {
     conSymbol_t *symbol = &con_font[c & 255];
     if ( ! symbol->width )
         return;
-    R_DrawPic( ( float )x + symbol->left, ( float )y + symbol->top,
+    R_BlendPic( ( float )x + symbol->left, ( float )y + symbol->top,
                 symbol->width, symbol->height,
                 symbol->st0.x, symbol->st0.y,
                 symbol->st1.x, symbol->st1.y,
@@ -20,9 +20,9 @@ void COND_DrawChar( int x, int y, int c ) {
 
 void COND_DrawConsoleFont( void ) {
     R_Color( 0.3f, 0, 0, 1 );
-    R_SolidRect( 0, 0, 256, 256 );
+    R_BlendRect( 0, 0, 256, 256 );
     R_Color( 1, 1, 1, 1 );
-    R_DrawPic( 0, 0, 256, 256, 0, 0, 1, 1, cond_fontTexture );
+    R_BlendPic( 0, 0, 256, 256, 0, 0, 1, 1, cond_fontTexture );
 }
 
 void COND_DrawLog( int numLines ) {
@@ -68,9 +68,9 @@ void COND_DrawConsole( void ) {
         return;
     }
     R_Color( 0.1f, 0, 0, 0.8f );
-    R_SolidRect( 0, 0, ws.x, ( float )frameHeight + 4 );
+    R_BlendRect( 0, 0, ws.x, ( float )frameHeight + 4 );
     R_Color( 1, 1, 1, 1 );
-    R_SolidRect( 0, ( float )frameHeight + 4, ws.x, 2 );
+    R_BlendRect( 0, ( float )frameHeight + 4, ws.x, 2 );
     int numLines = frameHeight / CON_SYMBOL_ADVANCEY;
     CONP_DrawPrompt( ( numLines - 1 ) * CON_SYMBOL_ADVANCEY );
     R_Color( 1, 1, 1, 0.75 );

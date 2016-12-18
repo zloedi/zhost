@@ -17,13 +17,13 @@ void R_SaveScreenshot( void );
 // FIXME: use scale?
 void R_ColorC( color_t color );
 void R_Color( float red, float green, float blue, float alpha );
-void R_SolidRect( float x, float y, float width, float height );
-void R_DrawPic( float x, float y,
+void R_BlendRect( float x, float y, float width, float height );
+void R_BlendPic( float x, float y,
                 float width, float height,
                 float s0, float t0,
                 float s1, float t1,
                 rImage_t *img );
-void R_DrawPicV2( v2_t position,
+void R_BlendPicV2( v2_t position,
                   v2_t size,
                   v2_t stTopLeft,
                   v2_t stBottomRight,
