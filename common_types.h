@@ -8,7 +8,11 @@
 #include <errno.h>
 #include <stdint.h>
 
+#ifndef __cplusplus
 typedef enum { false, true } bool_t;
+#else
+typedef int bool_t;
+#endif
 
 typedef unsigned char byte;
 
@@ -62,8 +66,8 @@ typedef union {
     };
 } v2_t;
 
-static v2_t v2zero = { .x = 0, .y = 0 };
-static v2_t v2one = { .x = 1, .y = 1 };
+static v2_t v2zero = { { 0, 0 } };
+static v2_t v2one = { { 1, 1 } };
 
 static inline v2_t warnDisabler( void ) {
     return v2one;
@@ -408,7 +412,7 @@ static inline void DbgPrintToStdout( const char *fmt, ... ) {
 #endif
 
 static inline void DbgDump( const void *mem, size_t numBytes ) {
-    for ( int i = 0; i < numBytes; i++ ) {
+    for ( size_t i = 0; i < numBytes; i++ ) {
         int c = ( ( byte* )mem )[i];
         if ( c >= 32 && c <= 126 ) {
             putc( c, stdout );
