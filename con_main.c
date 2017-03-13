@@ -231,7 +231,7 @@ int CON_Printf( const char *fmt, ... ) {
     if ( con.buf ) {
         CON_CopyToBuffer( buf );
     }
-    if ( con_showOnStdout != NULL && VAR_Num( con_showOnStdout ) ) {
+    if ( con.buf && con_showOnStdout && VAR_Num( con_showOnStdout ) ) {
         printf( "%s", buf );
         fflush( stdout );
     }
