@@ -26,14 +26,14 @@ static const color_t colYellow = { { 1, 1, 0, 1 } };
 static const color_t colCyan = { { 0, 1, 1, 1 } };
 static const color_t colMagenta = { { 1, 0, 1, 1 } };
 
-static inline color_t colorrgb( float r, float g, float b ) { 
+static inline color_t colorrgb( float r, float g, float b ) {
     color_t c = { { r, g, b, 1 } };
     return c;
 }
 
 static inline color_t colorint( unsigned rgb ) { return colorrgb( ( float )( rgb & 255 ) / 255.0f, ( float )( ( rgb >> 8 ) & 255 ) / 255.0f, ( float )( ( rgb >> 16 ) & 255 ) / 255.0f ); }
 
-static inline color_t colorrgba( float r, float g, float b, float a ) { 
+static inline color_t colorrgba( float r, float g, float b, float a ) {
     color_t c = { { r, g, b, a } };
     return c;
 }
@@ -139,9 +139,9 @@ static inline float v2Angle( v2_t v ) {
 #define ATAN_EPSILON 0.0001f
 
     if ( v.x > ATAN_EPSILON ) {
-        angle = atanf( v.y / v.x ); 
+        angle = atanf( v.y / v.x );
     } else if ( v.x < -ATAN_EPSILON ) {
-        angle = ( float )M_PI + atanf( v.y / v.x ); 
+        angle = ( float )M_PI + atanf( v.y / v.x );
     } else if ( v.y > 0 ) {
         angle = ( float )M_PI / 2.0f;
     } else {
@@ -201,13 +201,13 @@ static inline void v2OBBToPoly( v2_t center, v2_t axis1, v2_t axis2, float exten
 #endif
 
 static inline char* va (const char *fmt, ...) {
-	va_list argptr;
-	static char buf[VA_SIZE];
-	va_start (argptr, fmt);
-	vsnprintf (buf, VA_SIZE - 1, fmt, argptr);
-	va_end (argptr);
-	buf[VA_SIZE - 1] = '\0';
-	return buf;
+    va_list argptr;
+    static char buf[VA_SIZE];
+    va_start (argptr, fmt);
+    vsnprintf (buf, VA_SIZE - 1, fmt, argptr);
+    va_end (argptr);
+    buf[VA_SIZE - 1] = '\0';
+    return buf;
 }
 
 static inline size_t Minsz( size_t a, size_t b ) {
@@ -395,13 +395,17 @@ static inline int c2SqrLen( c2_t c ) {
     return c2Dot( c, c );
 }
 
-static inline void DbgPrint( const char *fmt, ... ) {
-	va_list argptr;
-	va_start( argptr, fmt );
-	vfprintf( stdout, fmt, argptr );
-	va_end (argptr);
+static inline void DbgPrintToStdout( const char *fmt, ... ) {
+    va_list argptr;
+    va_start( argptr, fmt );
+    vfprintf( stdout, fmt, argptr );
+    va_end (argptr);
     fflush( stdout );
 }
+
+#ifndef DBG_PRINT
+#define DBG_PRINT DbgPrintToStdout
+#endif
 
 static inline void DbgDump( const void *mem, size_t numBytes ) {
     for ( int i = 0; i < numBytes; i++ ) {
@@ -416,17 +420,17 @@ static inline void DbgDump( const void *mem, size_t numBytes ) {
     fflush( stdout );
 }
 
-#define PrintInt(s)          DbgPrint("%s: %d\n",#s,(int)(s))
-#define PrintIntHex(s)       DbgPrint("%s: 0x%x\n",#s,(int)(s))
-#define PrintUint(s)         DbgPrint("%s: %u\n",#s,(unsigned)(s))
-#define PrintScalarHex(s)    DbgPrint("%s: 0x%x\n",#s,(*(int*)(&(s))))
-#define PrintScalar(s)       DbgPrint("%s: %f\n",#s,(float)(s))
-#define PrintSizeT(s)        DbgPrint("%s: %zu\n",#s,(size_t)(s))
-#define PrintPointer(p)      DbgPrint("%s: %p\n",#p,(void*)(p))
-#define PrintString(s)       DbgPrint("%s: \"%s\"\n",#s,(s))
-#define PrintV2(v)           DbgPrint("%s: %f,%f\n",#v,(v).x,(v).y)
-#define PrintC2(c)           DbgPrint("%s: %d,%d\n",#c,(c).x,(c).y)
-#define PrintColor(c)        DbgPrint("%s: %f %f %f %f\n",#c,(c).r,(c).g,(c).b,(c).a)
+#define PrintInt(s)          DBG_PRINT("%s: %d\n",#s,(int)(s))
+#define PrintIntHex(s)       DBG_PRINT("%s: 0x%x\n",#s,(int)(s))
+#define PrintUint(s)         DBG_PRINT("%s: %u\n",#s,(unsigned)(s))
+#define PrintScalarHex(s)    DBG_PRINT("%s: 0x%x\n",#s,(*(int*)(&(s))))
+#define PrintScalar(s)       DBG_PRINT("%s: %f\n",#s,(float)(s))
+#define PrintSizeT(s)        DBG_PRINT("%s: %zu\n",#s,(size_t)(s))
+#define PrintPointer(p)      DBG_PRINT("%s: %p\n",#p,(void*)(p))
+#define PrintString(s)       DBG_PRINT("%s: \"%s\"\n",#s,(s))
+#define PrintV2(v)           DBG_PRINT("%s: %f,%f\n",#v,(v).x,(v).y)
+#define PrintC2(c)           DBG_PRINT("%s: %d,%d\n",#c,(c).x,(c).y)
+#define PrintColor(c)        DBG_PRINT("%s: %f %f %f %f\n",#c,(c).r,(c).g,(c).b,(c).a)
 #define PrintMem(m,n)        DbgDump((m),(n))
 
 #define STATIC_ASSERT(expr, msg)               \

@@ -227,14 +227,13 @@ int CON_Printf( const char *fmt, ... ) {
     int result = vsnprintf( buf, VA_SIZE, fmt, argptr );
     va_end( argptr );
     buf[VA_SIZE - 1] = '\0';
-
-    // the con_printf routine works even if console is not yet initialized
     if ( con.buf ) {
         CON_CopyToBuffer( buf );
     }
-    
+#ifdef CON_PRINTF_TO_STDOUT
     printf( "%s", buf );
     fflush( stdout );
+#endif
     return result;
 }
 
