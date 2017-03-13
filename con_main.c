@@ -4,6 +4,7 @@
 console_t con;
 
 static var_t *con_showLog;
+static var_t *con_showOnStdout;
 static var_t *con_showFontTexture;
 
 void CON_Toggle( bool_t fullscreen ) {
@@ -230,10 +231,10 @@ int CON_Printf( const char *fmt, ... ) {
     if ( con.buf ) {
         CON_CopyToBuffer( buf );
     }
-#ifdef CON_PRINTF_TO_STDOUT
-    printf( "%s", buf );
-    fflush( stdout );
-#endif
+    if ( con_showOnStdout != NULL && VAR_Num( con_showOnStdout ) ) {
+        printf( "%s", buf );
+        fflush( stdout );
+    }
     return result;
 }
 
@@ -244,6 +245,7 @@ static void Quit_f() {
 void CON_RegisterVars( void ) {
     con_showLog = VAR_RegisterHelp( "con_showLog", "0", "Print console messages on screen. The value is used as the number of lines shown." );
     con_showFontTexture = VAR_Register( "con_showFontTexture", "0" );
+    con_showOnStdout = VAR_RegisterHelp( "con_showOnStdout", "0", "Clone console output to stdout." );
     COND_RegisterVars();
     CMD_Register( "quit", Quit_f );
 }
