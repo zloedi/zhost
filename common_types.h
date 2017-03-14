@@ -14,6 +14,10 @@ typedef enum { false, true } bool_t;
 typedef int bool_t;
 #endif
 
+#ifndef M_PI
+# define M_PI           3.14159265358979323846  /* pi */
+#endif 
+
 typedef unsigned char byte;
 
 typedef union {
