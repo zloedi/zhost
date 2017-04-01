@@ -32,6 +32,8 @@ void R_BlendPicV2( v2_t position,
 void R_BlitToTexture( rImage_t *image, const byte *data, c2_t size, int bytesPerPixel );
 
 rImage_t* R_BlankStaticTexture( void );
+const char* R_ImagePath( const char *pathToImage );
+byte* R_LoadImageRaw( const char *pathToImage, c2_t *sz, int *n );
 rImage_t* R_LoadStaticTexture( const char *pathToImage );
 rImage_t* R_LoadStaticTextureEx( const char *pathToImage, v2_t *outSize );
 rImage_t* R_CreateStaticTexture( const byte *data, c2_t size, int bytesPerPixel );

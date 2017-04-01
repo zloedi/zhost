@@ -210,27 +210,37 @@ rImage_t* R_LoadStaticTexture( const char *pathToImage ) {
     return R_LoadStaticTextureEx( pathToImage, NULL );
 }
 
-rImage_t* R_LoadStaticTextureEx( const char *pathToImage, v2_t *outSize ) {
-    const char *finalPath = va( "%sdata/%s", SYS_BaseDir(), pathToImage );
-    // the fallback (white) texture is one on one pixel
-    c2_t sz = c2xy( 1, 1 );
-    int n;
-    rImage_t* result = r_fallbackTexture;
-    unsigned char *data = stbi_load( finalPath, &sz.x, &sz.y, &n, 0 );
+const char* R_ImagePath( const char *pathToImage ) {
+    return va( "%sdata/%s", SYS_BaseDir(), pathToImage );
+}
+
+byte* R_LoadImageRaw( const char *pathToImage, c2_t *sz, int *n ) {
+    byte *data = stbi_load( R_ImagePath( pathToImage ), &sz->x, &sz->y, n, 0 );
     // ... process data if not NULL ...
     // ... x = width, y = height, n = # 8-bit components per pixel ...
     // ... replace '0' with '1'..'4' to force that many components per pixel
     // ... but 'n' will always be the number that it would have been if you said 0
     if ( data ) {
         CON_Printf( "R_LoadStaticTextureEx: loaded image \"%s\"\n", pathToImage );
-        CON_Printf( " width:  %d\n", sz.x );
-        CON_Printf( " height: %d\n", sz.y );
-        CON_Printf( " bpp:    %d\n", n * 8 );
-        result = R_CreateStaticTexture( data, sz, n );
+        CON_Printf( " width:  %d\n", sz->x );
+        CON_Printf( " height: %d\n", sz->y );
+        CON_Printf( " bpp:    %d\n", *n * 8 );
     } else {
         CON_Printf( "ERROR: R_LoadStaticTextureEx: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
     }
-    stbi_image_free( data );
+    return data;
+}
+
+rImage_t* R_LoadStaticTextureEx( const char *pathToImage, v2_t *outSize ) {
+    // the fallback (white) texture is one on one pixel
+    c2_t sz = c2xy( 1, 1 );
+    int n;
+    rImage_t* result = r_fallbackTexture;
+    byte *data = R_LoadImageRaw( pathToImage, &sz, &n );
+    if ( data ) {
+        result = R_CreateStaticTexture( data, sz, n );
+        stbi_image_free( data );
+    }
     if ( outSize ) {
         *outSize = v2c2( sz );
     }
