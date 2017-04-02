@@ -65,6 +65,16 @@ bool_t E_DispatchEvents( void ) {
                 }
                 break;
 
+			case SDL_MOUSEMOTION:
+				I_UpdateState( v2xy( event.motion.x, event.motion.y ) );
+				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				break;
+
+			case SDL_MOUSEBUTTONUP:
+				break;
+				
             case SDL_QUIT:
                 quit = true;
                 break;
@@ -72,8 +82,5 @@ bool_t E_DispatchEvents( void ) {
             default:;
         }
     }
-    int x, y;
-    SDL_GetMouseState( &x, &y );
-    I_UpdateState( v2xy( x, y ) );
     return quit;
 }
