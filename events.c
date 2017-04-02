@@ -1,19 +1,19 @@
 #include "zhost.h"
 
-static void E_DispatchButton( int code, bool_t down, int inputContext ) {
+static void E_DispatchButton( int sdlCode, int button, bool_t down, int inputContext ) {
     // try the console
-    if ( CON_OnKeyboard( code, down ) ) {
+    if ( CON_OnKeyboard( sdlCode, down ) ) {
         return;
     }
     // TODO:
     // GUI widgets
-    //if ( WG_OnKeyboard( code, ch, down ) )
+    //if ( WG_OnKeyboard( sdlCode, ch, down ) )
     //  return;
     // application specific callback
-    //if ( sys_onKeyCallback( code, ch, down) )
+    //if ( sys_onKeyCallback( sdlCode, ch, down) )
     //  return;
     // command button bindings
-    I_OnButton( code, down, inputContext );
+    I_OnButton( button, down, inputContext );
 }
 
 bool_t E_DispatchEvents( int inputContext ) {
@@ -44,7 +44,7 @@ bool_t E_DispatchEvents( int inputContext ) {
                     CON_Toggle( ctlDown );
                 } 
                 else {
-                    E_DispatchButton( code, true, inputContext );
+                    E_DispatchButton( code, I_KeyToButton( code ), true, inputContext );
                 }
                 break;
 
@@ -61,7 +61,7 @@ bool_t E_DispatchEvents( int inputContext ) {
                     R_SaveScreenshot();
                 } 
                 else {
-                    E_DispatchButton( code, false, inputContext );
+                    E_DispatchButton( code, I_KeyToButton( code ), false, inputContext );
                 }
                 break;
 
@@ -70,12 +70,12 @@ bool_t E_DispatchEvents( int inputContext ) {
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-                E_DispatchButton( I_MapSDLButtonToButton( event.button.button ), 
+                E_DispatchButton( SDLK_UNKNOWN, I_MouseButtonToButton( event.button.button ), 
                         true, inputContext );
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-                E_DispatchButton( I_MapSDLButtonToButton( event.button.button ), 
+                E_DispatchButton( SDLK_UNKNOWN, I_MouseButtonToButton( event.button.button ), 
                         false, inputContext );
 				break;
 				
