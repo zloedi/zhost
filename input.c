@@ -152,7 +152,8 @@ enum {
 
 static const char *i_buttonNames[IB_NUM_BUTTONS];
 static char *i_binds[I_MAX_CONTEXTS][IB_NUM_BUTTONS];
-static v2_t i_mousePosition;
+static v2_t i_mousePositionV;
+static c2_t i_mousePositionC;
 
 static void I_Bind_f( void ) {
 	if ( CMD_Argc() < 3 ) {
@@ -164,12 +165,17 @@ static void I_Bind_f( void ) {
 	I_BindContext( CMD_Argv( 1 ), CMD_Argv( 2 ), context );
 }
 
-void I_UpdateMousePosition( v2_t mousePosition ) {
-    i_mousePosition = mousePosition;
+void I_UpdateMousePosition( c2_t mousePosition ) {
+    i_mousePositionC = mousePosition;
+    i_mousePositionV = v2c2( mousePosition );
 }
 
-v2_t I_GetMousePosition( void ) {
-    return i_mousePosition;
+c2_t I_GetMousePositionC( void ) {
+    return i_mousePositionC;
+}
+
+v2_t I_GetMousePositionV( void ) {
+    return i_mousePositionV;
 }
 
 void I_Bind( const char *button, const char *cmd ) {
