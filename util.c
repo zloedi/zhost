@@ -2,6 +2,7 @@
 
 static void UT_Done_f( void ) {
     CON_Stop();
+    I_Done();
     R_Done();
     VAR_Done();
     CMD_Done();

@@ -172,6 +172,10 @@ static inline float v2SqDistToPoint( v2_t a, v2_t b ) {
     return v2Dot( d, d );
 }
 
+static inline float v2Dist( v2_t a, v2_t b ) {
+    return sqrtf( v2SqDistToPoint( a, b ) );
+}
+
 // Returns the squared distance between point c and segment ab
 static inline float v2SqDistToSegment( v2_t a, v2_t b, v2_t c ) {
     v2_t ab = v2Sub( b, a ), ac = v2Sub( c, a ), bc = v2Sub( c, b );

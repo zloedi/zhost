@@ -152,8 +152,7 @@ enum {
 
 static const char *i_buttonNames[IB_NUM_BUTTONS];
 static char *i_binds[I_MAX_CONTEXTS][IB_NUM_BUTTONS];
-
-static v2_t i_mouseState;
+static v2_t i_mousePosition;
 
 static void I_Bind_f( void ) {
 	if ( CMD_Argc() < 3 ) {
@@ -165,12 +164,12 @@ static void I_Bind_f( void ) {
 	I_BindContext( CMD_Argv( 1 ), CMD_Argv( 2 ), context );
 }
 
-void I_UpdateState( v2_t mousePosition ) {
-    i_mouseState = mousePosition;
+void I_UpdateMousePosition( v2_t mousePosition ) {
+    i_mousePosition = mousePosition;
 }
 
 v2_t I_GetMousePosition( void ) {
-    return i_mouseState;
+    return i_mousePosition;
 }
 
 void I_Bind( const char *button, const char *cmd ) {
@@ -540,5 +539,18 @@ static void I_InitButtons( void ) {
 void I_RegisterVars( void ) {
 	I_InitButtons();
 	CMD_Register( "i_Bind", I_Bind_f );
+}
+
+void I_Done( void ) {
+	int i, j;
+	
+	for ( j = 0; j < I_MAX_CONTEXTS; j++ ) {
+		for ( i = 0; i < IB_NUM_BUTTONS; i++ ) {
+			char *cmd = i_binds[j][i];
+			A_Free( cmd );
+			i_binds[j][i] = NULL;
+		}
+	}
+	CON_Printf( "Done keybindings\n" );
 }
 

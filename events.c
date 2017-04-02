@@ -66,7 +66,7 @@ bool_t E_DispatchEvents( int inputContext ) {
                 break;
 
 			case SDL_MOUSEMOTION:
-				I_UpdateState( v2xy( event.motion.x, event.motion.y ) );
+				I_UpdateMousePosition( v2xy( event.motion.x, event.motion.y ) );
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
