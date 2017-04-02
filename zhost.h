@@ -13,10 +13,11 @@ void UT_Init( const char *appName,
               void (*init)( void ),
               void (*done)( void ) );
 
-void UT_Loop( void(*frame)( void ) );
+void UT_Loop( void(*frame)( void ), int inputContext );
 
 void UT_RunApp( const char *appName,
                 void (*registerVars)( void ),
                 void (*init)( void ),
                 void (*frame)( void ),
-                void (*done)( void ) );
+                void (*done)( void ),
+                int inputContext );

@@ -109,7 +109,7 @@ void VAR_StoreCfg( void ) {
         }
     }
     
-    //K_WriteBinds( f );
+    I_WriteBinds( f );
     
     fclose( f );
     

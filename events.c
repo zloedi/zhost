@@ -1,6 +1,6 @@
 #include "zhost.h"
 
-static void E_DispatchKey( int code, bool_t down ) {
+static void E_DispatchButton( int code, bool_t down, int inputContext ) {
     // try the console
     if ( CON_OnKeyboard( code, down ) ) {
         return;
@@ -12,11 +12,11 @@ static void E_DispatchKey( int code, bool_t down ) {
     // application specific callback
     //if ( sys_onKeyCallback( code, ch, down) )
     //  return;
-    // command key bindings
-    //K_OnKeyboard( code, down );
+    // command button bindings
+    I_OnButton( code, down, inputContext );
 }
 
-bool_t E_DispatchEvents( void ) {
+bool_t E_DispatchEvents( int inputContext ) {
     bool_t quit = false;
     SDL_Event event;
     while ( SDL_PollEvent( &event ) ) {
@@ -44,7 +44,7 @@ bool_t E_DispatchEvents( void ) {
                     CON_Toggle( ctlDown );
                 } 
                 else {
-                    E_DispatchKey( code, true );
+                    E_DispatchButton( code, true, inputContext );
                 }
                 break;
 
@@ -61,7 +61,7 @@ bool_t E_DispatchEvents( void ) {
                     R_SaveScreenshot();
                 } 
                 else {
-                    E_DispatchKey( code, false );
+                    E_DispatchButton( code, false, inputContext );
                 }
                 break;
 
@@ -70,9 +70,13 @@ bool_t E_DispatchEvents( void ) {
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
+                E_DispatchButton( I_MapSDLButtonToButton( event.button.button ), 
+                        true, inputContext );
 				break;
 
 			case SDL_MOUSEBUTTONUP:
+                E_DispatchButton( I_MapSDLButtonToButton( event.button.button ), 
+                        false, inputContext );
 				break;
 				
             case SDL_QUIT:

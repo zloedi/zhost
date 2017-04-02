@@ -1,1 +1,1 @@
-bool_t E_DispatchEvents( void );
+bool_t E_DispatchEvents( int inputContext );

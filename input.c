@@ -1,8 +1,30 @@
 #include "zhost.h"
 
-static const char* i_buttonNames[256];
+enum {
+    I_MOUSE_BUTTON1 = 250,
+    I_MOUSE_BUTTON2,
+    I_MOUSE_BUTTON3,
+    I_MOUSE_BUTTON4,
+    I_MOUSE_BUTTON5,
+};
 
-v2_t i_mouseState;
+#define I_MAX_BUTTONS 256
+#define I_MAX_CONTEXTS 8
+
+static const char *i_buttonNames[I_MAX_BUTTONS];
+static char *i_binds[I_MAX_CONTEXTS][I_MAX_BUTTONS];
+
+static v2_t i_mouseState;
+
+static void I_Bind_f( void ) {
+	if ( CMD_Argc() < 3 ) {
+		CON_Printf( "usage: i_bind <button_name> <command> [context]\n" );
+		return;
+	}
+
+	int context = atoi( CMD_Argv( 3 ) );
+	I_BindContext( CMD_Argv( 1 ), CMD_Argv( 2 ), context );
+}
 
 void I_UpdateState( v2_t mousePosition ) {
     i_mouseState = mousePosition;
@@ -12,15 +34,83 @@ v2_t I_GetMousePosition( void ) {
     return i_mouseState;
 }
 
-void I_Init( void ) {
+void I_Bind( const char *button, const char *cmd ) {
+	I_BindContext( button, cmd, 0 );
+}
 
-	// some keys dont have names, thus are hidden for all mapping
+void I_BindContext( const char *button, const char *cmd, int context ) {
+	int i;
 
-	//i_buttonNames[SDLK_MOUSE_BUTTON1] = "mouse left button";
-	//i_buttonNames[SDLK_MOUSE_BUTTON2] = "mouse middle button";
-	//i_buttonNames[SDLK_MOUSE_BUTTON3] = "mouse right button";
-	//i_buttonNames[SDLK_MOUSE_BUTTON4] = "mouse roll up";
-	//i_buttonNames[SDLK_MOUSE_BUTTON5] = "mouse roll down";
+	if ( context < 0 || context >= I_MAX_CONTEXTS ) {
+		CON_Printf( "I_BindContext: invalid context: %d\n", context );
+		return;
+	}
+	
+	for ( i = 0; i < I_MAX_BUTTONS; i++ ) {
+		const char *bname = i_buttonNames[i];
+		
+		if ( bname && ! stricmp( bname, button ) ) {
+			char *oldCmd = i_binds[context][i];
+			
+			A_Free( oldCmd );
+			i_binds[context][i] = A_StrDup( cmd );
+
+			CON_Printf( "button \"%s\" bound to command \"%s\"\n", button, cmd );
+			return;
+		}
+	}
+	
+	CON_Printf( "I_BindContext: Cant find button named \"%s\"\n", button );
+}
+
+void I_WriteBinds( FILE *f ) {
+	int i, j;
+	for ( j = 0; j < I_MAX_CONTEXTS; j++ ) {
+		for ( i = 0; i < I_MAX_BUTTONS; i++ ) {
+			const char *button = i_buttonNames[i];
+			const char *cmd = i_binds[j][i];
+			if ( button && cmd ) {
+				fprintf( f, "i_Bind \"%s\" \"%s\" %d\n", button, cmd, j );
+			}
+		}
+	}
+}
+
+static const char* I_NormalizedCommand( const char *cmd, int sign ) {
+	if ( ! cmd ) {
+		return NULL;
+	}
+	if ( cmd[0] != '+' && cmd[0] != '-' ) {
+		return va( "%c%s", sign, cmd );
+	}
+	if ( cmd[0] == sign ) {
+		return cmd;
+	}
+	return NULL;
+}
+
+void I_OnButton( int code, int down, int context ) {
+	const char *cmd = I_NormalizedCommand( i_binds[context][code], down ? '+' : '-' );
+	if ( ! cmd ) {
+		return;
+	}
+	CMD_ExecuteString( cmd );
+}
+
+int I_MapSDLButtonToButton( int sdlButton ) {
+    static const int map[] = {
+        [SDL_BUTTON_LEFT] = I_MOUSE_BUTTON1,
+        [SDL_BUTTON_MIDDLE] = I_MOUSE_BUTTON2,
+        [SDL_BUTTON_RIGHT] = I_MOUSE_BUTTON3,
+        [SDL_BUTTON_X1] = I_MOUSE_BUTTON4,
+        [SDL_BUTTON_X2] = I_MOUSE_BUTTON5,
+    };
+    return map[sdlButton];
+}
+
+static void I_InitButtons( void ) {
+
+	// some buttons dont have names, thus are hidden for all mapping
 
 	i_buttonNames[SDLK_BACKSPACE] = "Backspace";
 	i_buttonNames[SDLK_TAB] = "Tab";
@@ -158,5 +248,17 @@ void I_Init( void ) {
 	i_buttonNames[SDLK_POWER] = "Power";
 	i_buttonNames[SDLK_UNDO] = "Undo";
 
-	CON_Printf( "Key code to key name table filled.\n" );
+	i_buttonNames[I_MOUSE_BUTTON1] = "mouse left button";
+	i_buttonNames[I_MOUSE_BUTTON2] = "mouse middle button";
+	i_buttonNames[I_MOUSE_BUTTON3] = "mouse right button";
+	i_buttonNames[I_MOUSE_BUTTON4] = "mouse roll up";
+	i_buttonNames[I_MOUSE_BUTTON5] = "mouse roll down";
+
+	CON_Printf( "Button code to button name table filled.\n" );
 }
+
+void I_RegisterVars( void ) {
+	I_InitButtons();
+	CMD_Register( "i_Bind", I_Bind_f );
+}
+

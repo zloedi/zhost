@@ -36,6 +36,7 @@ void UT_Init( const char *appName,
 
     // RegisterVars before init
     R_RegisterVars();
+    I_RegisterVars();
     CON_RegisterVars();
     SAFE_CALL( registerVars );
 
@@ -54,11 +55,11 @@ void UT_Init( const char *appName,
 }
 
 // sample loop, write your own if you need more control
-void UT_Loop( void(*frame)( void ) ) {
+void UT_Loop( void(*frame)( void ), int inputContext ) {
     bool_t quit = false;
     SYS_SampleTime();
     do {
-        quit = E_DispatchEvents();
+        quit = E_DispatchEvents( inputContext );
         R_FrameBegin();
         SYS_SampleTime();
         // app Frame before frame end
@@ -75,8 +76,9 @@ void UT_RunApp( const char *appName,
                 void (*registerVars)( void ),
                 void (*init)( void ),
                 void (*frame)( void ),
-                void (*done)( void ) ) {
+                void (*done)( void ),
+                int inputContext ) {
     UT_Init( appName, 0, 0, registerVars, init, done );
     R_SetWindowTitle( appName );
-    UT_Loop( frame );
+    UT_Loop( frame, inputContext );
 }
