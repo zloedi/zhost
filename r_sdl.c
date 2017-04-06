@@ -231,6 +231,10 @@ byte* R_LoadImageRaw( const char *pathToImage, c2_t *sz, int *n ) {
     return data;
 }
 
+void R_DestroyImageRaw( byte *data ) {
+    stbi_image_free( data );
+}
+
 rImage_t* R_LoadStaticTextureEx( const char *pathToImage, v2_t *outSize ) {
     // the fallback (white) texture is one on one pixel
     c2_t sz = c2xy( 1, 1 );
