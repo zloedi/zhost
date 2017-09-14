@@ -361,6 +361,14 @@ static inline c2_t c2Scale( c2_t a, int s ) {
     return c2xy( a.x * s, a.y * s );
 }
 
+static inline c2_t c2RShifts( c2_t a, int shift ) {
+    return c2xy( a.x >> shift, a.y >> shift );
+}
+
+static inline c2_t c2LShifts( c2_t a, int shift ) {
+    return c2xy( a.x << shift, a.y << shift );
+}
+
 static inline c2_t c2Neg( c2_t c ) {
     return c2xy( -c.x, -c.y );
 }
