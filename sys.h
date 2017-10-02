@@ -1,5 +1,6 @@
 #include "common.h"
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 void SYS_Init( void );
 void SYS_InitEx( const char* organizationName, const char *appName );
