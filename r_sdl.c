@@ -287,7 +287,7 @@ void R_SetWindowTitle( const char *windowTitle ) {
 
 void R_Init( void ) {
     if( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 ) {
-        return SYS_ErrorBox( "R_InitEx: SDL could not initialize video! SDL Error: %s", SDL_GetError() );
+        return SYS_Fatal( "R_InitEx: SDL could not initialize video! SDL Error: %s", SDL_GetError() );
     }
     r_window = SDL_CreateWindow( NULL,
                 SDL_WINDOWPOS_UNDEFINED, 
@@ -296,12 +296,12 @@ void R_Init( void ) {
                 ( int )Clampf( VAR_Num( r_windowHeight ), MIN_WINDOW_HEIGHT, MAX_WINDOW_HEIGHT ),
                 SDL_WINDOW_RESIZABLE );
     if( r_window == NULL ) {
-        return SYS_ErrorBox( "Window could not be created! SDL Error: %s", SDL_GetError() );
+        return SYS_Fatal( "Window could not be created! SDL Error: %s", SDL_GetError() );
     }
     SDL_SetHint( SDL_HINT_RENDER_DRIVER, "opengl" );
     r_renderer = SDL_CreateRenderer( r_window, -1, SDL_RENDERER_ACCELERATED );
     if ( r_renderer == NULL ) {
-        return SYS_ErrorBox( "Renderer could not be created! SDL Error: %s", SDL_GetError() );
+        return SYS_Fatal( "Renderer could not be created! SDL Error: %s", SDL_GetError() );
     }
     r_images = A_Static( R_MAX_TEXTURES * sizeof( rImage_t ) );
     // white pixel placeholder at index 0

@@ -27,7 +27,7 @@ void UT_Init( const char *appName,
     }
 
     // allocator before all else
-    A_InitEx( SYS_ErrorBox, CON_Printf, 0, dynamicMem, staticMem );
+    A_InitEx( SYS_Fatal, CON_Printf, 0, dynamicMem, staticMem );
 
     // some core utilites are initialized without vars
     SYS_InitEx( NULL, appName );
@@ -47,6 +47,7 @@ void UT_Init( const char *appName,
     // Inits come after the vars are read and overwritten
     R_Init();
     R_SetClearColor( colorrgb( 0.1, 0.1, 0.1 ) );
+    SND_Init();
 
     // some parts of the console need a working renderer
     CON_Start();

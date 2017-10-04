@@ -5,7 +5,7 @@
 void SYS_Init( void );
 void SYS_InitEx( const char* organizationName, const char *appName );
 void SYS_Done( void );
-void SYS_ErrorBox( const char *fmt, ... );
+void SYS_Fatal( const char *fmt, ... );
 void SYS_WriteToClipboard( const char *str );
 const char* SYS_ReadClipboard( void );
 const char* SYS_PrefsDir( void );

@@ -3,6 +3,7 @@
 #include "cmd.h"
 #include "con_public.h"
 #include "renderer.h"
+#include "sound.h"
 #include "events.h"
 #include "input.h"
 
