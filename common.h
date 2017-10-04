@@ -42,7 +42,7 @@ static inline int COM_RandInRange( int min, int max ) {
     if ( min == max ) {
         return min;
     }
-    return min + COM_Rand() % ( max - min );
+    return min + COM_Rand() % ( max - min + 1 );
 }
 
 void COM_FloodFill( int x, int y, int winX0, int winY0, int winX1, int winY1, float color, int destWidth, int destHeight, float *dest );
