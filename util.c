@@ -47,7 +47,6 @@ void UT_Init( const char *appName,
     // Inits come after the vars are read and overwritten
     R_Init();
     R_SetClearColor( colorrgb( 0.1, 0.1, 0.1 ) );
-    SND_Init();
 
     // some parts of the console need a working renderer
     CON_Start();
