@@ -66,11 +66,8 @@ void SYS_InitEx( const char* organizationName, const char *appName ) {
     if ( SDL_InitSubSystem( SDL_INIT_AUDIO ) < 0 ) {
         SYS_ErrorBox( "SYS_Init: SDL could not initialize! SDL Error: %s", SDL_GetError() );
     }
-    // FIXME: 48000 crashes on linux 
-    if( Mix_OpenAudio( 44100, AUDIO_S16SYS, 2, 1024 ) < 0 ) { 
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 1024 ) < 0 ) { 
         SYS_ErrorBox( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
-    } else {
-        PrintString( "Mix_OpenAudio passed" );
     }
     Mix_AllocateChannels( 16 );
     SYS_SampleTime();
