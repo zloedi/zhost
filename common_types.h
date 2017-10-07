@@ -141,6 +141,7 @@ static inline v2_t v2Norm( v2_t v ) {
     return v2Scale( v, inv );
 }
 
+// obsolete, use atan2
 static inline float v2Angle( v2_t v ) {
     float angle;
 
