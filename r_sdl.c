@@ -21,10 +21,11 @@ rImage_t *r_fallbackTexture;
 #define R_MAX_TEXTURES 256
 
 static SDL_Window *r_window;
-static SDL_Renderer *r_renderer;
 static rImage_t *r_images;
 static int r_numImages;
 static color_t r_color;
+
+SDL_Renderer *r_renderer;
 
 void R_ColorC( color_t color ) {
     r_color = color;
@@ -143,6 +144,21 @@ static byte* R_ConvertTextureToRGBA( const byte* src, c2_t srcSz, int srcBytesPe
     return result;
 }
 
+SDL_Texture* R_CreateStaticTexFromBitmap( const byte *bitmap, c2_t bitmapSize, int bytesPerPixel ) {
+    SDL_Texture* result;
+    result = SDL_CreateTexture( r_renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, 
+                                                  bitmapSize.x, bitmapSize.y );
+    if ( bytesPerPixel == 4 ) {
+        SDL_UpdateTexture( result, NULL, bitmap, bitmapSize.x * 4 );
+    } else {
+        int rgbaPitch;
+        byte *rgbaData = R_ConvertTextureToRGBA( bitmap, bitmapSize, bytesPerPixel, &rgbaPitch );
+        SDL_UpdateTexture( result, NULL, rgbaData, rgbaPitch );
+        A_Free( rgbaData );
+    }
+    return result;
+}
+
 void R_BlitToTexture( rImage_t *image, const byte *data, c2_t size, int bytesPerPixel ) {
     if ( ! c2Equal( size, image->size ) ) {
         if ( image->texture ) {
@@ -214,8 +230,8 @@ const char* R_ImagePath( const char *pathToImage ) {
     return va( "%sdata/%s", SYS_BaseDir(), pathToImage );
 }
 
-byte* R_LoadImageRaw( const char *pathToImage, c2_t *sz, int *n ) {
-    byte *data = stbi_load( R_ImagePath( pathToImage ), &sz->x, &sz->y, n, 0 );
+byte* R_LoadImageRaw( const char *pathToImage, c2_t *sz, int *n, int bytesPerPixel ) {
+    byte *data = stbi_load( R_ImagePath( pathToImage ), &sz->x, &sz->y, n, bytesPerPixel );
     // ... process data if not NULL ...
     // ... x = width, y = height, n = # 8-bit components per pixel ...
     // ... replace '0' with '1'..'4' to force that many components per pixel
@@ -240,7 +256,7 @@ rImage_t* R_LoadStaticTextureEx( const char *pathToImage, v2_t *outSize ) {
     c2_t sz = c2xy( 1, 1 );
     int n;
     rImage_t* result = r_fallbackTexture;
-    byte *data = R_LoadImageRaw( pathToImage, &sz, &n );
+    byte *data = R_LoadImageRaw( pathToImage, &sz, &n, 0 );
     if ( data ) {
         result = R_CreateStaticTexture( data, sz, n );
         stbi_image_free( data );
