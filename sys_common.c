@@ -85,4 +85,5 @@ void SYS_Init( void ) {
 void SYS_Done( void ) {
     SDL_free( sys_prefsDir );
     SDL_free( sys_baseDir );
+    SDL_CloseAudio();
 }
