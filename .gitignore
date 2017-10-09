@@ -2,6 +2,7 @@
 *.swo
 *.exe
 *.dll
+!3rdparty/**/*.dll
 vim_session_*
 zhost_dbg
 zhost
