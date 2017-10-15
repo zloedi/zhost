@@ -483,7 +483,7 @@ static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context *context, i
    if (cur->x < res.x + width)
       cur->x = (stbrp_coord) (res.x + width);
 
-#ifdef _DEBUG
+#if 0 //#ifdef _DEBUG
    cur = context->active_head;
    while (cur->x < context->width) {
       STBRP_ASSERT(cur->x < cur->next->x);

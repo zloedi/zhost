@@ -287,6 +287,17 @@ static inline float Clampf( float v, float min, float max ) {
     return Maxf( min, Minf( v, max ) );
 }
 
+static inline int Power2RoundUp( int v ) {
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v++;
+    return v;
+}
+
 typedef union c2_s {
     struct {
         int x, y;
@@ -414,6 +425,14 @@ static inline c2_t c2Clamp( c2_t c, c2_t min, c2_t max ) {
 
 static inline int c2SqrLen( c2_t c ) {
     return c2Dot( c, c );
+}
+
+static inline int c2MulComps( c2_t c ) {
+    return c.x * c.y;
+}
+
+static inline c2_t c2Power2RoundUp( c2_t c ) {
+    return c2xy( Power2RoundUp( c.x ), Power2RoundUp( c.y ) );
 }
 
 static inline void DbgPrintToStdout( const char *fmt, ... ) {
