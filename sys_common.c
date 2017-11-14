@@ -76,6 +76,9 @@ void SYS_InitEx( const char* organizationName, const char *appName ) {
     if ( ! sys_baseDir ) {
         sys_baseDir = A_StrDup( "./" );
     }
+    unsigned seed = SDL_GetPerformanceCounter();
+    COM_SRand( seed );
+    CON_Printf( "Random seed: %d\n", seed );
 }
 
 void SYS_Init( void ) {
