@@ -156,18 +156,16 @@ static void CMD_ExecuteStringOV( const char *text, const char *param, bool_t kee
             CMD_AppendArg( param );
         }
 
-        // clear key sign
+        // clear key/button sign or axis
         if ( cmdName[0] == '+' || cmdName[0] == '-' ) {
             cmdName++;
         }
 
-        if ( cmdName ) {
-            cmd = CMD_Find( cmdName );
-            if ( cmd ) {
-                cmd->func();
-            } else {
-                CON_Printf( "Unknown command \"%s\"\n", cmd_argv[0] );
-            }
+        cmd = CMD_Find( cmdName );
+        if ( cmd ) {
+            cmd->func();
+        } else {
+            CON_Printf( "Unknown command \"%s\"\n", cmd_argv[0] );
         }
     } while ( data );
 }

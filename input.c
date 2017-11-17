@@ -145,15 +145,34 @@ enum {
     IB_MOUSE_BUTTON4,
     IB_MOUSE_BUTTON5,
 
+    // keep these ordered like that, refer to I_MAX_CONTROLLERS and I_MAX_AXES
+    // for limits
+    IB_JOY0_AXIS0,
+    IB_JOY0_AXIS1,
+
+    IB_JOY1_AXIS0,
+    IB_JOY1_AXIS1,
+
+    //IB_JOY0_BUTT0,
+    //IB_JOY1_BUTT0,
+
+    //IB_JOY0_BUTT1,
+    //IB_JOY1_BUTT1,
+
     IB_NUM_BUTTONS,
 };
 
 #define I_MAX_CONTEXTS 8
+#define I_MAX_CONTROLLERS 2
+#define I_MAX_AXES 2
 
 static const char *i_buttonNames[IB_NUM_BUTTONS];
 static char *i_binds[I_MAX_CONTEXTS][IB_NUM_BUTTONS];
 static v2_t i_mousePositionV;
 static c2_t i_mousePositionC;
+
+static SDL_GameController *i_controllers[I_MAX_CONTROLLERS];
+static SDL_Joystick *i_joysticks[I_MAX_CONTROLLERS];
 
 static void I_Bind_f( void ) {
 	if ( CMD_Argc() < 3 ) {
@@ -176,6 +195,83 @@ c2_t I_GetMousePositionC( void ) {
 
 v2_t I_GetMousePositionV( void ) {
     return i_mousePositionV;
+}
+
+static void I_CloseAllControllers( void ) {
+    for ( int i = 0; i < I_MAX_CONTROLLERS; i++ ) {
+        if ( i_controllers[i] ) {
+            SDL_GameControllerClose( i_controllers[i] );
+            i_controllers[i] = NULL;
+        }
+        if ( i_joysticks[i] ) {
+            SDL_JoystickClose( i_joysticks[i] );
+            i_joysticks[i] = NULL;
+        }
+    }
+    CON_Printf( "Joysticks closed.\n" );
+}
+
+static void I_OpenAllControllers( void ) {
+    int numJoys = SDL_NumJoysticks();
+    CON_Printf( "Num joysticks found: %d\n", numJoys );
+    for( int joy = 0, ctrl = 0; joy < numJoys; ++joy ) {
+        if ( SDL_IsGameController( joy ) ) {
+            CON_Printf( "   Found controller %s\n", SDL_JoystickNameForIndex( joy ) );
+            if ( ctrl < I_MAX_CONTROLLERS ) {
+                i_controllers[ctrl] = SDL_GameControllerOpen( joy );
+                ctrl++;
+            }
+        } else {
+            CON_Printf( "   Found joystick %s\n", SDL_JoystickNameForIndex( joy ) );
+            if ( joy < I_MAX_CONTROLLERS ) {
+                i_joysticks[joy] = SDL_JoystickOpen( joy );
+            }
+        }
+    }
+}
+
+void I_AddController( int id ) {
+    CON_Printf( "Added controller: %d\n", id );
+}
+
+void I_RemoveController( int id ) {
+    CON_Printf( "Removed controller: %d\n", id );
+}
+
+void I_OnControllerButton( SDL_ControllerButtonEvent event ) {
+    CON_Printf( "button: %d\n", ( int )event.state );
+}
+
+static const char* I_NormalizedCommand( const char *cmd, int sign, int value ) {
+	if ( ! cmd ) {
+		return NULL;
+	}
+	if ( cmd[0] != '+' && cmd[0] != '-' ) {
+		return va( "%c%s %d", sign, cmd, value );
+	}
+	if ( cmd[0] == sign ) {
+		return va( "%s %d", cmd, value );
+	}
+	return NULL;
+}
+
+void I_OnControllerAxis( int device, int axis, int value, int context ) {
+    int code = IB_NONE;
+    if ( device >= I_MAX_CONTROLLERS ) {
+        CON_Printf( "I_OnControllerAxis: device %d is out of range\n", device );
+        return;
+    }
+    if ( axis >= I_MAX_AXES ) {
+        CON_Printf( "I_OnControllerAxis: axis %d is out of range\n", axis );
+        return;
+    }
+    code = IB_JOY0_AXIS0 + device * I_MAX_AXES + axis;
+	const char *cmd = I_NormalizedCommand( i_binds[context][code], 
+                                value > 0 ? '+' : '-', value );
+	if ( ! cmd ) {
+		return;
+	}
+	CMD_ExecuteString( cmd );
 }
 
 void I_Bind( const char *button, const char *cmd ) {
@@ -214,21 +310,9 @@ void I_WriteBinds( FILE *f ) {
 	}
 }
 
-static const char* I_NormalizedCommand( const char *cmd, int sign ) {
-	if ( ! cmd ) {
-		return NULL;
-	}
-	if ( cmd[0] != '+' && cmd[0] != '-' ) {
-		return va( "%c%s", sign, cmd );
-	}
-	if ( cmd[0] == sign ) {
-		return cmd;
-	}
-	return NULL;
-}
-
 void I_OnButton( int code, int down, int context ) {
-	const char *cmd = I_NormalizedCommand( i_binds[context][code], down ? '+' : '-' );
+	const char *cmd = I_NormalizedCommand( i_binds[context][code], 
+                                down ? '+' : '-', 32767 );
 	if ( ! cmd ) {
 		return;
 	}
@@ -533,6 +617,11 @@ static void I_InitButtons( void ) {
 	i_buttonNames[IB_MOUSE_BUTTON4] = "mouse roll up";
 	i_buttonNames[IB_MOUSE_BUTTON5] = "mouse roll down";
 
+    i_buttonNames[IB_JOY0_AXIS0] = "joystick 0 axis 0";
+    i_buttonNames[IB_JOY0_AXIS1] = "joystick 0 axis 1";
+    //i_buttonNames[IB_JOY0_BUTT0] = "joystick 0 button 0";
+    //i_buttonNames[IB_JOY0_BUTT1] = "joystick 0 button 1";
+
 	CON_Printf( "Button code to button name table filled.\n" );
 }
 
@@ -541,7 +630,12 @@ void I_RegisterVars( void ) {
 	CMD_Register( "i_Bind", I_Bind_f );
 }
 
+void I_Init( void ) {
+    I_OpenAllControllers();
+}
+
 void I_Done( void ) {
+    I_CloseAllControllers();
 	int i, j;
 	for ( j = 0; j < I_MAX_CONTEXTS; j++ ) {
 		for ( i = 0; i < IB_NUM_BUTTONS; i++ ) {

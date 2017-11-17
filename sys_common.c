@@ -60,10 +60,10 @@ const char* SYS_PrefsDir( void ) {
 }
 
 void SYS_InitEx( const char* organizationName, const char *appName ) {
-    if ( SDL_InitSubSystem( SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER ) < 0 ) {
+    if ( SDL_InitSubSystem( SDL_INIT_TIMER ) < 0 ) {
         SYS_Fatal( "SYS_Init: SDL could not initialize! SDL Error: %s", SDL_GetError() );
     }
-    if ( SDL_InitSubSystem( SDL_INIT_AUDIO ) < 0 ) {
+    if ( SDL_InitSubSystem( SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO ) < 0 ) {
         SYS_ErrorBox( "SYS_Init: SDL could not initialize! SDL Error: %s", SDL_GetError() );
     }
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 1024 ) < 0 ) { 

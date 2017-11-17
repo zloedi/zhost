@@ -1,6 +1,6 @@
 #include "zhost.h"
 
-static void E_DispatchButton( int sdlCode, int button, bool_t down, int inputContext ) {
+static void E_DispatchKey( int sdlCode, int button, bool_t down, int inputContext ) {
     // try the console
     if ( CON_OnKeyboard( sdlCode, down ) ) {
         return;
@@ -44,7 +44,7 @@ bool_t E_DispatchEvents( int inputContext ) {
                     CON_Toggle( ctlDown );
                 } 
                 else {
-                    E_DispatchButton( code, I_KeyToButton( code ), true, inputContext );
+                    E_DispatchKey( code, I_KeyToButton( code ), true, inputContext );
                 }
                 break;
 
@@ -61,7 +61,7 @@ bool_t E_DispatchEvents( int inputContext ) {
                     R_SaveScreenshot();
                 } 
                 else {
-                    E_DispatchButton( code, I_KeyToButton( code ), false, inputContext );
+                    E_DispatchKey( code, I_KeyToButton( code ), false, inputContext );
                 }
                 break;
 
@@ -70,15 +70,45 @@ bool_t E_DispatchEvents( int inputContext ) {
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
-                E_DispatchButton( SDLK_UNKNOWN, I_MouseButtonToButton( event.button.button ), 
+                E_DispatchKey( SDLK_UNKNOWN, I_MouseButtonToButton( event.button.button ), 
                         true, inputContext );
 				break;
 
 			case SDL_MOUSEBUTTONUP:
-                E_DispatchButton( SDLK_UNKNOWN, I_MouseButtonToButton( event.button.button ), 
+                E_DispatchKey( SDLK_UNKNOWN, I_MouseButtonToButton( event.button.button ), 
                         false, inputContext );
 				break;
 				
+           case SDL_CONTROLLERDEVICEADDED:
+                I_AddController( event.cdevice.which );
+                break;
+
+            case SDL_CONTROLLERDEVICEREMOVED:
+                I_RemoveController( event.cdevice.which );
+                break;
+
+            case SDL_CONTROLLERBUTTONDOWN:
+            case SDL_CONTROLLERBUTTONUP:
+                I_OnControllerButton( event.cbutton );
+                break;
+
+            case SDL_JOYAXISMOTION:
+                I_OnControllerAxis( event.jaxis.which, event.jaxis.axis, 
+                                        event.jaxis.value, inputContext );
+                break;
+
+            case SDL_JOYBALLMOTION:
+            case SDL_JOYHATMOTION:
+            case SDL_JOYBUTTONDOWN:
+            case SDL_JOYBUTTONUP:
+            case SDL_JOYDEVICEADDED:
+                CON_Printf( "joy event\n" );
+                break;
+
+            case SDL_CONTROLLERAXISMOTION:
+                //I_OnControllerAxis( event.caxis );
+                break;
+            
             case SDL_QUIT:
                 quit = true;
                 break;
