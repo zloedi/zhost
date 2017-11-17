@@ -183,22 +183,16 @@ void I_Bind( const char *button, const char *cmd ) {
 }
 
 void I_BindContext( const char *button, const char *cmd, int context ) {
-	int i;
-
 	if ( context < 0 || context >= I_MAX_CONTEXTS ) {
 		CON_Printf( "I_BindContext: invalid context: %d\n", context );
 		return;
 	}
-	
-	for ( i = 0; i < IB_NUM_BUTTONS; i++ ) {
+	for ( int i = 0; i < IB_NUM_BUTTONS; i++ ) {
 		const char *bname = i_buttonNames[i];
-		
 		if ( bname && ! stricmp( bname, button ) ) {
 			char *oldCmd = i_binds[context][i];
-			
 			A_Free( oldCmd );
 			i_binds[context][i] = A_StrDup( cmd );
-
 			CON_Printf( "button \"%s\" bound to command \"%s\"\n", button, cmd );
 			return;
 		}
@@ -549,7 +543,6 @@ void I_RegisterVars( void ) {
 
 void I_Done( void ) {
 	int i, j;
-	
 	for ( j = 0; j < I_MAX_CONTEXTS; j++ ) {
 		for ( i = 0; i < IB_NUM_BUTTONS; i++ ) {
 			char *cmd = i_binds[j][i];

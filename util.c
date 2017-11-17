@@ -2,10 +2,11 @@
 
 static void UT_Done_f( void ) {
     CON_Stop();
-    I_Done();
     R_Done();
     VAR_Done();
     CMD_Done();
+    // input stores binds, destroy after vars/commands.
+    I_Done();
     CON_Done();
     SYS_Done();
     A_Done();

@@ -78,7 +78,6 @@ void SYS_InitEx( const char* organizationName, const char *appName ) {
     }
     unsigned seed = SDL_GetPerformanceCounter();
     COM_SRand( seed );
-    CON_Printf( "Random seed: %d\n", seed );
 }
 
 void SYS_Init( void ) {
