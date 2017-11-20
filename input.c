@@ -1,8 +1,6 @@
 #include "zhost.h"
 
 #define I_MAX_CONTEXTS 8
-#define I_MAX_JOYSTICKS 2
-#define I_MAX_AXES 2
 #define I_AXIS_MIN_VALUE -32768
 #define I_AXIS_MAX_VALUE 32767 
 
@@ -153,9 +151,8 @@ enum {
 
     IB_JOY_AXES,
     IB_JOY_BUTTONS = IB_JOY_AXES + I_MAX_AXES * I_MAX_JOYSTICKS,
-    // FIXME: ...
 
-    IB_NUM_BUTTONS,
+    IB_NUM_BUTTONS = IB_JOY_BUTTONS + I_MAX_BUTTONS * I_MAX_JOYSTICKS,
 };
 
 static const char *i_buttonNames[IB_NUM_BUTTONS];
@@ -232,8 +229,31 @@ void I_RemoveController( int id ) {
     CON_Printf( "Removed controller: %d\n", id );
 }
 
-void I_OnControllerButton( SDL_ControllerButtonEvent event ) {
-    CON_Printf( "button: %d\n", ( int )event.state );
+static void I_TokenizeAndExecute( int code, int context, bool_t engage, bool_t value ) {
+    for ( const char *data = COM_Token( i_binds[context][code] ); data; data = COM_Token( data ) ) {
+        // FIXME: allow command arguments in binds
+        if ( com_token[0] != ';' ) {
+            const char *cmd = CMD_CommandFromBind( com_token, engage, value );
+            if ( cmd ) {
+                CMD_ExecuteString( cmd );
+            }
+        }
+        data = COM_Token( data );
+    }
+}
+
+void I_OnJoystickButton( int device, int button, bool_t down, int context ) {
+    int code = IB_NONE;
+    if ( device >= I_MAX_JOYSTICKS ) {
+        CON_Printf( "I_OnJoystickButton: device %d is out of range\n", device );
+        return;
+    }
+    if ( button >= I_MAX_BUTTONS ) {
+        CON_Printf( "I_OnJoystickButton: button %d is out of range\n", button );
+        return;
+    }
+    code = IB_JOY_BUTTONS + device * I_MAX_BUTTONS + button;
+    I_TokenizeAndExecute( code, context, down, I_AXIS_MAX_VALUE );
 }
 
 void I_OnJoystickAxis( int device, int axis, int value, int context ) {
@@ -250,16 +270,8 @@ void I_OnJoystickAxis( int device, int axis, int value, int context ) {
     int deadZone = Clampf( I_AXIS_MAX_VALUE * VAR_Num( i_joystickDeadZone ), 
                                 0,
                                 I_AXIS_MAX_VALUE * 0.85 );
-    for ( const char *data = COM_Token( i_binds[context][code] ); data; data = COM_Token( data ) ) {
-        // FIXME: allow command arguments in binds
-        if ( com_token[0] != ';' ) {
-            const char *cmd = CMD_CommandFromBind( com_token, abs( value ) > deadZone, value );
-            if ( cmd ) {
-                CMD_ExecuteString( cmd );
-            }
-        }
-        data = COM_Token( data );
-    }
+    bool_t engage = abs( value ) > deadZone;
+    I_TokenizeAndExecute( code, context, engage, value );
 }
 
 void I_Bind( const char *button, const char *cmd ) {
@@ -299,10 +311,7 @@ void I_WriteBinds( FILE *f ) {
 }
 
 void I_OnButton( int code, int down, int context ) {
-    const char *executeCmd = CMD_CommandFromBind( i_binds[context][code], down, I_AXIS_MAX_VALUE );
-    if ( executeCmd ) {
-        CMD_ExecuteString( executeCmd );
-    }
+    I_TokenizeAndExecute( code, context, down, I_AXIS_MAX_VALUE );
 }
 
 int I_MouseButtonToButton( int sdlButton ) {
@@ -603,11 +612,19 @@ static void I_InitButtons( void ) {
 	i_buttonNames[IB_MOUSE_BUTTON4] = "mouse roll up";
 	i_buttonNames[IB_MOUSE_BUTTON5] = "mouse roll down";
 
-    static char axisNames[I_MAX_JOYSTICKS * I_MAX_AXES][32];
-    for ( int joy = 0, i = 0; joy < I_MAX_JOYSTICKS; joy++ ) {
+#define I_JOY_NAME_SIZE 32
+
+    static char joyAxisNames[I_MAX_JOYSTICKS * I_MAX_AXES][I_JOY_NAME_SIZE];
+    static char joyButtNames[I_MAX_JOYSTICKS * I_MAX_BUTTONS][I_JOY_NAME_SIZE];
+
+    for ( int joy = 0, i = 0, j = 0; joy < I_MAX_JOYSTICKS; joy++ ) {
         for ( int axis = 0; axis < I_MAX_AXES; axis++, i++ ) {
-            COM_StrCpy( axisNames[i], va( "joystick %d axis %d", joy, axis ), 64 );
-            i_buttonNames[IB_JOY_AXES + i] = axisNames[i];
+            COM_StrCpy( joyAxisNames[i], va( "joystick %d axis %d", joy, axis ), I_JOY_NAME_SIZE );
+            i_buttonNames[IB_JOY_AXES + i] = joyAxisNames[i];
+        }
+        for ( int button = 0; button < I_MAX_BUTTONS; button++, j++ ) {
+            COM_StrCpy( joyButtNames[j], va( "joystick %d button %d", joy, button ), I_JOY_NAME_SIZE );
+            i_buttonNames[IB_JOY_BUTTONS + j] = joyButtNames[j];
         }
     }
 

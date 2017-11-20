@@ -89,7 +89,6 @@ bool_t E_DispatchEvents( int inputContext ) {
 
             case SDL_CONTROLLERBUTTONDOWN:
             case SDL_CONTROLLERBUTTONUP:
-                I_OnControllerButton( event.cbutton );
                 break;
 
             case SDL_CONTROLLERAXISMOTION:
@@ -103,12 +102,16 @@ bool_t E_DispatchEvents( int inputContext ) {
 
             case SDL_JOYBALLMOTION:
             case SDL_JOYHATMOTION:
-            case SDL_JOYBUTTONDOWN:
-            case SDL_JOYBUTTONUP:
             case SDL_JOYDEVICEADDED:
                 CON_Printf( "joy event\n" );
                 break;
             
+            case SDL_JOYBUTTONDOWN:
+            case SDL_JOYBUTTONUP:
+                I_OnJoystickButton( event.jbutton.which, event.jbutton.button,
+                            event.jbutton.state == SDL_PRESSED, inputContext);
+                break;
+
             case SDL_QUIT:
                 quit = true;
                 break;
