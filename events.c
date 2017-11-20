@@ -92,8 +92,12 @@ bool_t E_DispatchEvents( int inputContext ) {
                 I_OnControllerButton( event.cbutton );
                 break;
 
+            case SDL_CONTROLLERAXISMOTION:
+                //I_OnControllerAxis( event.caxis );
+                break;
+
             case SDL_JOYAXISMOTION:
-                I_OnControllerAxis( event.jaxis.which, event.jaxis.axis, 
+                I_OnJoystickAxis( event.jaxis.which, event.jaxis.axis, 
                                         event.jaxis.value, inputContext );
                 break;
 
@@ -103,10 +107,6 @@ bool_t E_DispatchEvents( int inputContext ) {
             case SDL_JOYBUTTONUP:
             case SDL_JOYDEVICEADDED:
                 CON_Printf( "joy event\n" );
-                break;
-
-            case SDL_CONTROLLERAXISMOTION:
-                //I_OnControllerAxis( event.caxis );
                 break;
             
             case SDL_QUIT:

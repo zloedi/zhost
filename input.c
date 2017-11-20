@@ -1,5 +1,11 @@
 #include "zhost.h"
 
+#define I_MAX_CONTEXTS 8
+#define I_MAX_JOYSTICKS 2
+#define I_MAX_AXES 2
+#define I_AXIS_MIN_VALUE -32768
+#define I_AXIS_MAX_VALUE 32767 
+
 enum {
     IB_NONE,
 
@@ -145,34 +151,22 @@ enum {
     IB_MOUSE_BUTTON4,
     IB_MOUSE_BUTTON5,
 
-    // keep these ordered like that, refer to I_MAX_CONTROLLERS and I_MAX_AXES
-    // for limits
-    IB_JOY0_AXIS0,
-    IB_JOY0_AXIS1,
-
-    IB_JOY1_AXIS0,
-    IB_JOY1_AXIS1,
-
-    //IB_JOY0_BUTT0,
-    //IB_JOY1_BUTT0,
-
-    //IB_JOY0_BUTT1,
-    //IB_JOY1_BUTT1,
+    IB_JOY_AXES,
+    IB_JOY_BUTTONS = IB_JOY_AXES + I_MAX_AXES * I_MAX_JOYSTICKS,
+    // FIXME: ...
 
     IB_NUM_BUTTONS,
 };
-
-#define I_MAX_CONTEXTS 8
-#define I_MAX_CONTROLLERS 2
-#define I_MAX_AXES 2
 
 static const char *i_buttonNames[IB_NUM_BUTTONS];
 static char *i_binds[I_MAX_CONTEXTS][IB_NUM_BUTTONS];
 static v2_t i_mousePositionV;
 static c2_t i_mousePositionC;
 
-static SDL_GameController *i_controllers[I_MAX_CONTROLLERS];
-static SDL_Joystick *i_joysticks[I_MAX_CONTROLLERS];
+static SDL_GameController *i_controllers[I_MAX_JOYSTICKS];
+static SDL_Joystick *i_joysticks[I_MAX_JOYSTICKS];
+
+static var_t *i_joystickDeadZone;
 
 static void I_Bind_f( void ) {
 	if ( CMD_Argc() < 3 ) {
@@ -198,7 +192,7 @@ v2_t I_GetMousePositionV( void ) {
 }
 
 static void I_CloseAllControllers( void ) {
-    for ( int i = 0; i < I_MAX_CONTROLLERS; i++ ) {
+    for ( int i = 0; i < I_MAX_JOYSTICKS; i++ ) {
         if ( i_controllers[i] ) {
             SDL_GameControllerClose( i_controllers[i] );
             i_controllers[i] = NULL;
@@ -217,13 +211,13 @@ static void I_OpenAllControllers( void ) {
     for( int joy = 0, ctrl = 0; joy < numJoys; ++joy ) {
         if ( SDL_IsGameController( joy ) ) {
             CON_Printf( "   Found controller %s\n", SDL_JoystickNameForIndex( joy ) );
-            if ( ctrl < I_MAX_CONTROLLERS ) {
+            if ( ctrl < I_MAX_JOYSTICKS ) {
                 i_controllers[ctrl] = SDL_GameControllerOpen( joy );
                 ctrl++;
             }
         } else {
             CON_Printf( "   Found joystick %s\n", SDL_JoystickNameForIndex( joy ) );
-            if ( joy < I_MAX_CONTROLLERS ) {
+            if ( joy < I_MAX_JOYSTICKS ) {
                 i_joysticks[joy] = SDL_JoystickOpen( joy );
             }
         }
@@ -242,36 +236,30 @@ void I_OnControllerButton( SDL_ControllerButtonEvent event ) {
     CON_Printf( "button: %d\n", ( int )event.state );
 }
 
-static const char* I_NormalizedCommand( const char *cmd, int sign, int value ) {
-	if ( ! cmd ) {
-		return NULL;
-	}
-	if ( cmd[0] != '+' && cmd[0] != '-' ) {
-		return va( "%c%s %d", sign, cmd, value );
-	}
-	if ( cmd[0] == sign ) {
-		return va( "%s %d", cmd, value );
-	}
-	return NULL;
-}
-
-void I_OnControllerAxis( int device, int axis, int value, int context ) {
+void I_OnJoystickAxis( int device, int axis, int value, int context ) {
     int code = IB_NONE;
-    if ( device >= I_MAX_CONTROLLERS ) {
-        CON_Printf( "I_OnControllerAxis: device %d is out of range\n", device );
+    if ( device >= I_MAX_JOYSTICKS ) {
+        CON_Printf( "I_OnJoystickAxis: device %d is out of range\n", device );
         return;
     }
     if ( axis >= I_MAX_AXES ) {
-        CON_Printf( "I_OnControllerAxis: axis %d is out of range\n", axis );
+        CON_Printf( "I_OnJoystickAxis: axis %d is out of range\n", axis );
         return;
     }
-    code = IB_JOY0_AXIS0 + device * I_MAX_AXES + axis;
-	const char *cmd = I_NormalizedCommand( i_binds[context][code], 
-                                value > 0 ? '+' : '-', value );
-	if ( ! cmd ) {
-		return;
-	}
-	CMD_ExecuteString( cmd );
+    code = IB_JOY_AXES + device * I_MAX_AXES + axis;
+    int deadZone = Clampf( I_AXIS_MAX_VALUE * VAR_Num( i_joystickDeadZone ), 
+                                0,
+                                I_AXIS_MAX_VALUE * 0.85 );
+    for ( const char *data = COM_Token( i_binds[context][code] ); data; data = COM_Token( data ) ) {
+        // FIXME: allow command arguments in binds
+        if ( com_token[0] != ';' ) {
+            const char *cmd = CMD_CommandFromBind( com_token, abs( value ) > deadZone, value );
+            if ( cmd ) {
+                CMD_ExecuteString( cmd );
+            }
+        }
+        data = COM_Token( data );
+    }
 }
 
 void I_Bind( const char *button, const char *cmd ) {
@@ -311,12 +299,10 @@ void I_WriteBinds( FILE *f ) {
 }
 
 void I_OnButton( int code, int down, int context ) {
-	const char *cmd = I_NormalizedCommand( i_binds[context][code], 
-                                down ? '+' : '-', 32767 );
-	if ( ! cmd ) {
-		return;
-	}
-	CMD_ExecuteString( cmd );
+    const char *executeCmd = CMD_CommandFromBind( i_binds[context][code], down, I_AXIS_MAX_VALUE );
+    if ( executeCmd ) {
+        CMD_ExecuteString( executeCmd );
+    }
 }
 
 int I_MouseButtonToButton( int sdlButton ) {
@@ -617,16 +603,20 @@ static void I_InitButtons( void ) {
 	i_buttonNames[IB_MOUSE_BUTTON4] = "mouse roll up";
 	i_buttonNames[IB_MOUSE_BUTTON5] = "mouse roll down";
 
-    i_buttonNames[IB_JOY0_AXIS0] = "joystick 0 axis 0";
-    i_buttonNames[IB_JOY0_AXIS1] = "joystick 0 axis 1";
-    //i_buttonNames[IB_JOY0_BUTT0] = "joystick 0 button 0";
-    //i_buttonNames[IB_JOY0_BUTT1] = "joystick 0 button 1";
+    static char axisNames[I_MAX_JOYSTICKS * I_MAX_AXES][32];
+    for ( int joy = 0, i = 0; joy < I_MAX_JOYSTICKS; joy++ ) {
+        for ( int axis = 0; axis < I_MAX_AXES; axis++, i++ ) {
+            COM_StrCpy( axisNames[i], va( "joystick %d axis %d", joy, axis ), 64 );
+            i_buttonNames[IB_JOY_AXES + i] = axisNames[i];
+        }
+    }
 
 	CON_Printf( "Button code to button name table filled.\n" );
 }
 
 void I_RegisterVars( void ) {
 	I_InitButtons();
+    i_joystickDeadZone = VAR_RegisterHelp( "i_joystickDeadZone", "0.25", "Joystick/Controller axis dead zone." ); 
 	CMD_Register( "i_Bind", I_Bind_f );
 }
 

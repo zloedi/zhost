@@ -157,8 +157,11 @@ static void CMD_ExecuteStringOV( const char *text, const char *param, bool_t kee
         }
 
         // clear key/button sign or axis
-        if ( cmdName[0] == '+' || cmdName[0] == '-' ) {
+        if ( cmdName[0] == CMD_RELEASE ) {
             cmdName++;
+        } else if ( cmdName[0] == CMD_ENGAGE ) {
+            // engaged flag, sign, axis
+            cmdName += 1 + 1 + 5;
         }
 
         cmd = CMD_Find( cmdName );

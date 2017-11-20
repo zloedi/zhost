@@ -54,10 +54,9 @@ eat_spaces:
     }
 
     // some symbols are tokens
-    if ( IsSpecial( c = *data ) ) {
+    if ( IsSpecial( *data ) ) {
         if ( i < VA_SIZE - 1 ) {
-            com_token[i] = ( char )c;
-            i++;
+            com_token[i++] = *data;
         }
         data++;
         goto out;
@@ -69,14 +68,11 @@ eat_spaces:
         
         while ( ( c = *data ) ) {
             data++;
-            
             if ( c == '"' ) {
                 break;
             }
-            
             if ( i < VA_SIZE - 1 ) {
-                com_token[i] = ( char )c;
-                i++;
+                com_token[i++] = c;
             }
         }
         goto out;
@@ -84,38 +80,30 @@ eat_spaces:
     
     while( true ) {
         c = *data;
-        
         if ( ! c ) {
             break;
         }
-        
         if( IsSpace( c ) ) {
             break;
         }
-        
-        if ( c == '/' && data[1] == '/' ) {
+        if ( data[0] == '/' && data[1] == '/' ) {
             break;
         }
-        
         if ( IsSpecial( c ) ) {
             break;
         }
-
         if ( c == '"' ) {
             break;
         }
-        
         if ( i < VA_SIZE - 1 ) {
-            com_token[i] = ( char )c;
-            i++;
+            com_token[i++] = c;
         }
-
         data++;
     }
     
 out:
     com_token[i] = '\0';
-    return c ? data : NULL;
+    return data;
 }
 
 char** COM_Tokenize( const char *text ) {

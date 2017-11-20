@@ -463,6 +463,7 @@ static inline void DbgDump( const void *mem, size_t numBytes ) {
 #define PrintInt(s)          DBG_PRINT("%s: %d\n",#s,(int)(s))
 #define PrintIntHex(s)       DBG_PRINT("%s: 0x%x\n",#s,(int)(s))
 #define PrintUint(s)         DBG_PRINT("%s: %u\n",#s,(unsigned)(s))
+#define PrintChar(s)         DBG_PRINT("%s: '%c'\n",#s,(int)(s))
 #define PrintScalarHex(s)    DBG_PRINT("%s: 0x%x\n",#s,(*(int*)(&(s))))
 #define PrintScalar(s)       DBG_PRINT("%s: %f\n",#s,(float)(s))
 #define PrintSizeT(s)        DBG_PRINT("%s: %zu\n",#s,(size_t)(s))

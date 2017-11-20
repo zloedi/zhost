@@ -18,4 +18,59 @@ const char* CMD_Argv( int index );
 bool_t CMD_Autocomplete( char *prompt, int maxLen, bool_t matchCommands );
 cmd_t* CMD_Find( const char *name );
 
-static inline bool_t CMD_ButDown( void ) { return CMD_Argv( 0 )[0] == '+'; }
+#define CMD_ENGAGE '!'
+#define CMD_RELEASE '^'
+
+static inline bool_t CMD_Engaged( void ) { return CMD_Argv( 0 )[0] == CMD_ENGAGE; }
+static inline bool_t CMD_Released( void ) { return CMD_Argv( 0 )[0] == CMD_RELEASE; }
+
+static inline int CMD_ArgvAxisSign( void ) { 
+    const char *str = CMD_Argv( 0 );
+    return ( str[0] == CMD_ENGAGE ) * ( 1 - 2 * ( str[1] == '-' ) );
+}
+
+static inline int CMD_ArgvAxisValue( void ) { 
+    static const int pow10[] = {
+        1,
+        10,
+        100,
+        1000,
+        10000,
+    };
+    const char *a = CMD_Argv( 0 );
+    int sign;
+    int result = 0;
+    if ( a[0] == CMD_ENGAGE ) {
+        sign = a[1] == '-' ? -1 : 1;
+        for ( int i = 0; i < 5; i++ ) {
+            int c = a[2 + i] - '0';
+            result += c * pow10[4 - i];
+        }
+    }
+    return result * sign;
+}
+
+static inline const char* CMD_CommandFromBind( const char *bindString, bool_t engage, int value ) {
+	if ( ! bindString ) {
+		return NULL;
+	}
+    int e = engage ? CMD_ENGAGE : CMD_RELEASE;
+    if ( bindString[0] == CMD_ENGAGE || bindString[0] == CMD_RELEASE ) {
+        if ( e != bindString[0] ) {
+            return NULL;
+        } 
+        bindString++;
+    }
+    int s = value >= 0 ? '+' : '-';
+    if ( bindString[0] == '+' || bindString[0] == '-' ) {
+        if ( value != 0 && s != bindString[0] ) {
+            return NULL;
+        }
+        bindString++;
+    }
+    if ( engage ) {
+        return va( "%c%c%05d%s", e, s, abs( value ), bindString );
+    }
+    return va( "%c%s", e, bindString );
+}
+
