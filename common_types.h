@@ -213,7 +213,16 @@ static inline void v2OBBToPoly( v2_t center, v2_t axis1, v2_t axis2, float exten
 #define stricmp strcasecmp
 #endif
 
-static inline char* va (const char *fmt, ...) {
+static inline char* vab ( char *buf, int bufSize, const char *fmt, ... ) {
+    va_list argptr;
+    va_start (argptr, fmt);
+    vsnprintf (buf, bufSize - 1, fmt, argptr);
+    va_end (argptr);
+    buf[bufSize - 1] = '\0';
+    return buf;
+}
+
+static inline char* va ( const char *fmt, ... ) {
     va_list argptr;
     static char buf[VA_SIZE];
     va_start (argptr, fmt);

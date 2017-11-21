@@ -100,8 +100,19 @@ bool_t E_DispatchEvents( int inputContext ) {
                                         event.jaxis.value, inputContext );
                 break;
 
-            case SDL_JOYBALLMOTION:
             case SDL_JOYHATMOTION:
+                if ( event.jhat.value == SDL_HAT_CENTERED ) {
+                    I_OnJoystickHaxis( event.jhat.which, 0, 0, inputContext );
+                    I_OnJoystickHaxis( event.jhat.which, 1, 0, inputContext );
+                } else {
+                    if ( event.jhat.value & SDL_HAT_LEFT )  I_OnJoystickHaxis( event.jhat.which, 0, I_AXIS_MIN_VALUE, inputContext );
+                    if ( event.jhat.value & SDL_HAT_RIGHT ) I_OnJoystickHaxis( event.jhat.which, 0, I_AXIS_MAX_VALUE, inputContext );
+                    if ( event.jhat.value & SDL_HAT_UP )    I_OnJoystickHaxis( event.jhat.which, 1, I_AXIS_MIN_VALUE, inputContext );
+                    if ( event.jhat.value & SDL_HAT_DOWN )  I_OnJoystickHaxis( event.jhat.which, 1, I_AXIS_MAX_VALUE, inputContext );
+                }
+                break;
+
+            case SDL_JOYBALLMOTION:
             case SDL_JOYDEVICEADDED:
                 CON_Printf( "joy event\n" );
                 break;
