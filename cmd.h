@@ -21,12 +21,12 @@ cmd_t* CMD_Find( const char *name );
 #define CMD_ENGAGE '!'
 #define CMD_RELEASE '^'
 
-static inline bool_t CMD_Engaged( void ) { return CMD_Argv( 0 )[0] == CMD_ENGAGE; }
-static inline bool_t CMD_Released( void ) { return CMD_Argv( 0 )[0] == CMD_RELEASE; }
+static inline bool_t CMD_ArgvEngaged( void ) { return CMD_Argv( 0 )[0] == CMD_ENGAGE; }
+static inline bool_t CMD_ArgvReleased( void ) { return CMD_Argv( 0 )[0] == CMD_RELEASE; }
 
 static inline int CMD_ArgvAxisSign( void ) { 
     const char *str = CMD_Argv( 0 );
-    return ( str[0] == CMD_ENGAGE ) * ( 1 - 2 * ( str[1] == '-' ) );
+    return ( str[0] == CMD_ENGAGE ) * ( 1 - 2 * ( str[3] == '-' ) );
 }
 
 static inline int CMD_ArgvAxisValue( void ) { 
@@ -50,7 +50,7 @@ static inline int CMD_ArgvAxisValue( void ) {
     return result * sign;
 }
 
-static inline const char* CMD_CommandFromBind( const char *bindString, bool_t engage, int value ) {
+static inline const char* CMD_CommandFromBind( const char *bindString, bool_t isJoystick, int joystickId, bool_t engage, int value ) {
 	if ( ! bindString ) {
 		return NULL;
 	}
@@ -61,16 +61,18 @@ static inline const char* CMD_CommandFromBind( const char *bindString, bool_t en
         } 
         bindString++;
     }
-    int s = value >= 0 ? '+' : '-';
+    int sign = value >= 0 ? '+' : '-';
     if ( bindString[0] == '+' || bindString[0] == '-' ) {
-        if ( value != 0 && s != bindString[0] ) {
+        if ( value != 0 && sign != bindString[0] ) {
             return NULL;
         }
         bindString++;
     }
+    int devFlag = isJoystick ? 'j' : 'k';
+    int devId = '0' + joystickId;
     if ( engage ) {
-        return va( "%c%c%05d%s", e, s, abs( value ), bindString );
+        return va( "%c%c%c%c%05d%s", e, devFlag, devId, sign, abs( value ), bindString );
     }
-    return va( "%c%s", e, bindString );
+    return va( "%c%c%c%s", e, devFlag, devId, bindString );
 }
 

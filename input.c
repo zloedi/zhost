@@ -141,18 +141,39 @@ enum {
     IB_POWER,
     IB_UNDO,
 
+    // Keep these in this order
     IB_MOUSE_LEFT,
     IB_MOUSE_MIDDLE,
     IB_MOUSE_RIGHT,
     IB_MOUSE_BUTTON4,
     IB_MOUSE_BUTTON5,
 
+    // Keep these in this order
     IB_JOY_AXES,
     IB_JOY_BUTTONS = IB_JOY_AXES + I_MAX_AXES * I_MAX_JOYSTICKS,
     IB_JOY_HAXES = IB_JOY_BUTTONS + I_MAX_BUTTONS * I_MAX_JOYSTICKS,
 
     IB_NUM_BUTTONS = IB_JOY_HAXES + 2 * I_MAX_JOYSTICKS,
 };
+
+bool_t I_IsMouseButton( int button ) {
+    return button >= IB_MOUSE_LEFT && button < IB_JOY_AXES;
+}
+
+bool_t I_IsKeyButton( int button ) {
+    return button < IB_MOUSE_LEFT;
+}
+
+bool_t I_IsJoyButton( int button ) {
+    return button >= IB_JOY_BUTTONS;
+}
+
+int I_DeviceOfButton( int button ) {
+    if ( I_IsJoyButton( button ) ) {
+        return ( button - IB_JOY_BUTTONS ) / I_MAX_BUTTONS;
+    }
+    return 0;
+}
 
 static const char *i_buttonNames[IB_NUM_BUTTONS];
 static char *i_binds[I_MAX_CONTEXTS][IB_NUM_BUTTONS];
@@ -232,7 +253,8 @@ static void I_TokenizeAndExecute( int code, int context, bool_t engage, bool_t v
     for ( const char *data = COM_Token( i_binds[context][code] ); data; data = COM_Token( data ) ) {
         // FIXME: allow command arguments in binds
         if ( com_token[0] != ';' ) {
-            const char *cmd = CMD_CommandFromBind( com_token, engage, value );
+            int device = I_DeviceOfButton( code );
+            const char *cmd = CMD_CommandFromBind( com_token, I_IsJoyButton( code ), device, engage, value );
             if ( cmd ) {
                 CMD_ExecuteString( cmd );
             }
@@ -241,17 +263,19 @@ static void I_TokenizeAndExecute( int code, int context, bool_t engage, bool_t v
     }
 }
 
-void I_OnJoystickButton( int device, int button, bool_t down, int context ) {
-    int code = IB_NONE;
+int I_JoystickButtonToButton( int device, int button, int context ) {
     if ( device >= I_MAX_JOYSTICKS ) {
-        CON_Printf( "I_OnJoystickButton: device %d is out of range\n", device );
-        return;
+        CON_Printf( "I_JoystickButtonToButton: device %d is out of range\n", device );
+        return IB_NONE;
     }
     if ( button >= I_MAX_BUTTONS ) {
-        CON_Printf( "I_OnJoystickButton: button %d is out of range\n", button );
-        return;
+        CON_Printf( "I_JoystickButtonToButton: button %d is out of range\n", button );
+        return IB_NONE;
     }
-    code = IB_JOY_BUTTONS + device * I_MAX_BUTTONS + button;
+    return IB_JOY_BUTTONS + device * I_MAX_BUTTONS + button;
+}
+
+void I_OnJoystickButton( int code, bool_t down, int context ) {
     I_TokenizeAndExecute( code, context, down, I_AXIS_MAX_VALUE );
 }
 

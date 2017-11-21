@@ -1,5 +1,11 @@
 #include "zhost.h"
 
+static bool_t E_Stub_f( int button, bool_t down ) {
+    return false;
+}
+
+static eButtonOverride_t e_buttonOverride = E_Stub_f;
+
 static void E_DispatchKey( int sdlCode, int button, bool_t down, int inputContext ) {
     // try the console
     if ( CON_OnKeyboard( sdlCode, down ) ) {
@@ -10,10 +16,15 @@ static void E_DispatchKey( int sdlCode, int button, bool_t down, int inputContex
     //if ( WG_OnKeyboard( sdlCode, ch, down ) )
     //  return;
     // application specific callback
-    //if ( sys_onKeyCallback( sdlCode, ch, down) )
-    //  return;
+    if ( e_buttonOverride( button, down ) ) {
+        return;
+    }
     // command button bindings
     I_OnButton( button, down, inputContext );
+}
+
+void E_SetButtonOverride( eButtonOverride_t func ) {
+    e_buttonOverride = func ? func : E_Stub_f;
 }
 
 bool_t E_DispatchEvents( int inputContext ) {
@@ -118,9 +129,17 @@ bool_t E_DispatchEvents( int inputContext ) {
                 break;
             
             case SDL_JOYBUTTONDOWN:
-            case SDL_JOYBUTTONUP:
-                I_OnJoystickButton( event.jbutton.which, event.jbutton.button,
-                            event.jbutton.state == SDL_PRESSED, inputContext);
+            case SDL_JOYBUTTONUP: {
+                    int button = I_JoystickButtonToButton( event.jbutton.which, 
+                                    event.jbutton.button,
+                                    inputContext );
+                    bool_t down = event.jbutton.state == SDL_PRESSED;
+                    if ( ! e_buttonOverride( button, down ) ) {
+                        I_OnJoystickButton( button, 
+                                            down, 
+                                            inputContext );
+                    }
+                }
                 break;
 
             case SDL_QUIT:
