@@ -23,6 +23,8 @@ cmd_t* CMD_Find( const char *name );
 
 static inline bool_t CMD_ArgvEngaged( void ) { return CMD_Argv( 0 )[0] == CMD_ENGAGE; }
 static inline bool_t CMD_ArgvReleased( void ) { return CMD_Argv( 0 )[0] == CMD_RELEASE; }
+static inline bool_t CMD_ArgvDeviceType( void ) { return CMD_Argv( 0 )[1]; }
+static inline bool_t CMD_ArgvDeviceId( void ) { return CMD_Argv( 0 )[2]; }
 
 static inline int CMD_ArgvAxisSign( void ) { 
     const char *str = CMD_Argv( 0 );

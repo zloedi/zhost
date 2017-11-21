@@ -156,19 +156,37 @@ enum {
     IB_NUM_BUTTONS = IB_JOY_HAXES + 2 * I_MAX_JOYSTICKS,
 };
 
-bool_t I_IsMouseButton( int button ) {
-    return button >= IB_MOUSE_LEFT && button < IB_JOY_AXES;
+//static bool_t I_IsMouseButton( int button ) {
+//    return button >= IB_MOUSE_LEFT && button < IB_JOY_AXES;
+//}
+
+//static bool_t I_IsKeyButton( int button ) {
+//    return button < IB_MOUSE_LEFT;
+//}
+
+bool_t I_IsJoystickCode( int button ) {
+    return button >= IB_JOY_AXES;
 }
 
-bool_t I_IsKeyButton( int button ) {
-    return button < IB_MOUSE_LEFT;
+static bool_t I_IsJoyAxis( int button ) {
+    return button >= IB_JOY_AXES && button < IB_JOY_BUTTONS;
 }
 
-bool_t I_IsJoyButton( int button ) {
-    return button >= IB_JOY_BUTTONS;
+static bool_t I_IsJoyButton( int button ) {
+    return button >= IB_JOY_BUTTONS && button < IB_JOY_HAXES;
 }
 
-int I_DeviceOfButton( int button ) {
+static bool_t I_IsJoyHaxis( int button ) {
+    return button >= IB_JOY_HAXES;
+}
+
+int I_DeviceOfCode( int button ) {
+    if ( I_IsJoyAxis( button ) ) {
+        return ( button - IB_JOY_AXES ) / I_MAX_AXES;
+    }
+    if ( I_IsJoyHaxis( button ) ) {
+        return ( button - IB_JOY_HAXES ) / 2;
+    }
     if ( I_IsJoyButton( button ) ) {
         return ( button - IB_JOY_BUTTONS ) / I_MAX_BUTTONS;
     }
@@ -253,8 +271,10 @@ static void I_TokenizeAndExecute( int code, int context, bool_t engage, bool_t v
     for ( const char *data = COM_Token( i_binds[context][code] ); data; data = COM_Token( data ) ) {
         // FIXME: allow command arguments in binds
         if ( com_token[0] != ';' ) {
-            int device = I_DeviceOfButton( code );
-            const char *cmd = CMD_CommandFromBind( com_token, I_IsJoyButton( code ), device, engage, value );
+            const char *cmd = CMD_CommandFromBind( com_token, 
+                                                I_IsJoystickCode( code ), 
+                                                I_DeviceOfCode( code ), 
+                                                engage, value );
             if ( cmd ) {
                 CMD_ExecuteString( cmd );
             }
