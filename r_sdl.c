@@ -237,12 +237,12 @@ byte* R_LoadImageRaw( const char *pathToImage, c2_t *sz, int *n, int bytesPerPix
     // ... replace '0' with '1'..'4' to force that many components per pixel
     // ... but 'n' will always be the number that it would have been if you said 0
     if ( data ) {
-        CON_Printf( "R_LoadStaticTextureEx: loaded image \"%s\"\n", pathToImage );
+        CON_Printf( "R_LoadImageRaw: loaded image \"%s\"\n", pathToImage );
         CON_Printf( " width:  %d\n", sz->x );
         CON_Printf( " height: %d\n", sz->y );
         CON_Printf( " bpp:    %d\n", *n * 8 );
     } else {
-        CON_Printf( "ERROR: R_LoadStaticTextureEx: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
+        CON_Printf( "ERROR: R_LoadImageRaw: failed to load image \"%s\". stbi error: \"%s\"\n", pathToImage, stbi_failure_reason() );
     }
     return data;
 }

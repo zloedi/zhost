@@ -34,6 +34,11 @@ static const color_t colYellow = { { 1, 1, 0, 1 } };
 static const color_t colCyan = { { 0, 1, 1, 1 } };
 static const color_t colMagenta = { { 1, 0, 1, 1 } };
 
+static const color_t colGrayHalf = { { 0.5f, 0.5f, 0.5f, 1 } };
+static const color_t colGrayThird = { { 0.333f, 0.333f, 0.333f, 1 } };
+static const color_t colGrayQuart = { { 0.25f, 0.25f, 0.25f, 1 } };
+static const color_t colOrange = { { 1, 0.45, 0, 1 } };
+
 static inline color_t colorrgb( float r, float g, float b ) {
     color_t c = { { r, g, b, 1 } };
     return c;
