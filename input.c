@@ -156,6 +156,15 @@ enum {
     IB_NUM_BUTTONS = IB_JOY_HAXES + 2 * I_MAX_JOYSTICKS,
 };
 
+static const char *i_buttonNames[IB_NUM_BUTTONS];
+static char *i_binds[I_MAX_CONTEXTS][IB_NUM_BUTTONS];
+static v2_t i_mousePositionV;
+static c2_t i_mousePositionC;
+static SDL_GameController *i_controllers[I_MAX_JOYSTICKS];
+static SDL_Joystick *i_joysticks[I_MAX_JOYSTICKS];
+static int i_joystickDeadZone;
+static var_t *i_logCommands;
+
 //static bool_t I_IsMouseButton( int button ) {
 //    return button >= IB_MOUSE_LEFT && button < IB_JOY_AXES;
 //}
@@ -192,16 +201,6 @@ int I_DeviceOfCode( int button ) {
     }
     return 0;
 }
-
-static const char *i_buttonNames[IB_NUM_BUTTONS];
-static char *i_binds[I_MAX_CONTEXTS][IB_NUM_BUTTONS];
-static v2_t i_mousePositionV;
-static c2_t i_mousePositionC;
-
-static SDL_GameController *i_controllers[I_MAX_JOYSTICKS];
-static SDL_Joystick *i_joysticks[I_MAX_JOYSTICKS];
-
-static int i_joystickDeadZone;
 
 static void I_Bind_f( void ) {
     if ( CMD_Argc() < 3 ) {
@@ -276,6 +275,9 @@ static void I_TokenizeAndExecute( int code, int context, bool_t engage, bool_t v
                                                 I_DeviceOfCode( code ), 
                                                 engage, value );
             if ( cmd ) {
+                if ( VAR_Num( i_logCommands ) ) {
+                    CON_Printf( "Execute command: %s\n", cmd );
+                }
                 CMD_ExecuteString( cmd );
             }
         }
@@ -684,6 +686,7 @@ static void I_InitButtons( void ) {
 
 void I_RegisterVars( void ) {
     I_InitButtons();
+    i_logCommands = VAR_Register( "i_logCommands", "0" );
     CMD_Register( "i_Bind", I_Bind_f );
 }
 
