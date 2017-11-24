@@ -270,10 +270,10 @@ static void I_TokenizeAndExecute( int code, int context, bool_t engage, bool_t v
     for ( const char *data = COM_Token( i_binds[context][code] ); data; data = COM_Token( data ) ) {
         // FIXME: allow command arguments in binds
         if ( com_token[0] != ';' ) {
-            const char *cmd = CMD_CommandFromBind( com_token, 
-                                                I_IsJoystickCode( code ), 
-                                                I_DeviceOfCode( code ), 
-                                                engage, value );
+            const char *cmd = CMD_FromBind( com_token, 
+                                             I_IsJoystickCode( code ), 
+                                             I_DeviceOfCode( code ), 
+                                             engage, value );
             if ( cmd ) {
                 if ( VAR_Num( i_logCommands ) ) {
                     CON_Printf( "Execute command: %s\n", cmd );

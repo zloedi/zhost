@@ -52,7 +52,7 @@ static inline int CMD_ArgvAxisValue( void ) {
     return result * sign;
 }
 
-static inline const char* CMD_CommandFromBind( const char *bindString, bool_t isJoystick, int joystickId, bool_t engage, int value ) {
+static inline const char* CMD_FromBind( const char *bindString, bool_t isJoystick, int joystickId, bool_t engage, int value ) {
 	if ( ! bindString ) {
 		return NULL;
 	}
@@ -76,5 +76,11 @@ static inline const char* CMD_CommandFromBind( const char *bindString, bool_t is
         return va( "%c%c%c%c%05d%s", e, devFlag, devId, sign, abs( value ), bindString );
     }
     return va( "%c%c%c%s", e, devFlag, devId, bindString );
+}
+
+static inline void CMD_FromBindBuf( const char *bindString, bool_t isJoystick, int joystickId, bool_t engage, int value, char* buf, int bufSz ) {
+    const char *vabuf = CMD_FromBind( bindString, isJoystick, 
+                                        joystickId, engage, value );
+    COM_StrCpy( buf, vabuf, bufSz );
 }
 

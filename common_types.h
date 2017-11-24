@@ -486,6 +486,7 @@ static inline void DbgDump( const void *mem, size_t numBytes ) {
 #define PrintV2(v)           DBG_PRINT("%s: %f,%f\n",#v,(v).x,(v).y)
 #define PrintC2(c)           DBG_PRINT("%s: %d,%d\n",#c,(c).x,(c).y)
 #define PrintColor(c)        DBG_PRINT("%s: %f %f %f %f\n",#c,(c).r,(c).g,(c).b,(c).a)
+#define PrintBlank()         DBG_PRINT("\n")
 #define PrintMem(m,n)        DbgDump((m),(n))
 
 #define STATIC_ASSERT(expr, msg)               \
