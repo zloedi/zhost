@@ -12,6 +12,7 @@ void I_RemoveController( int id );
 int I_JoystickButtonToButton( int device, int button, int context );
 bool_t I_IsJoystickCode( int button );
 int I_DeviceOfCode( int button );
+void I_SetJoystickDeadZone( int val );
 void I_OnJoystickButton( int code, bool_t down, int context );
 void I_OnJoystickAxis( int device, int axis, int value, int context );
 void I_OnJoystickHaxis( int device, int axis, int value, int context );

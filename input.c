@@ -201,7 +201,7 @@ static c2_t i_mousePositionC;
 static SDL_GameController *i_controllers[I_MAX_JOYSTICKS];
 static SDL_Joystick *i_joysticks[I_MAX_JOYSTICKS];
 
-static var_t *i_joystickDeadZone;
+static int i_joystickDeadZone;
 
 static void I_Bind_f( void ) {
     if ( CMD_Argc() < 3 ) {
@@ -304,6 +304,10 @@ void I_OnJoystickHaxis( int device, int axis, int value, int context ) {
     I_TokenizeAndExecute( code, context, value != 0, value );
 }
 
+void I_SetJoystickDeadZone( int val ) {
+    i_joystickDeadZone = val;
+}
+
 void I_OnJoystickAxis( int device, int axis, int value, int context ) {
     int code = IB_NONE;
     if ( device >= I_MAX_JOYSTICKS ) {
@@ -315,9 +319,7 @@ void I_OnJoystickAxis( int device, int axis, int value, int context ) {
         return;
     }
     code = IB_JOY_AXES + device * I_MAX_AXES + axis;
-    int deadZone = Clampf( I_AXIS_MAX_VALUE * VAR_Num( i_joystickDeadZone ), 
-                                0,
-                                I_AXIS_MAX_VALUE * 0.85 );
+    int deadZone = Clampi( i_joystickDeadZone, 0, I_AXIS_MAX_VALUE * 90 / 100 );
     bool_t engage = abs( value ) > deadZone;
     I_TokenizeAndExecute( code, context, engage, value );
 }
@@ -682,7 +684,6 @@ static void I_InitButtons( void ) {
 
 void I_RegisterVars( void ) {
     I_InitButtons();
-    i_joystickDeadZone = VAR_RegisterHelp( "i_joystickDeadZone", "0.25", "Joystick/Controller axis dead zone." ); 
     CMD_Register( "i_Bind", I_Bind_f );
 }
 
