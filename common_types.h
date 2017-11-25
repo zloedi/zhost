@@ -474,6 +474,7 @@ static inline void DbgDump( const void *mem, size_t numBytes ) {
     fflush( stdout );
 }
 
+#define PrintBool(s)         DBG_PRINT("%s: %s\n",#s,((int)(s) == 0 ? "false" : "true"))
 #define PrintInt(s)          DBG_PRINT("%s: %d\n",#s,(int)(s))
 #define PrintIntHex(s)       DBG_PRINT("%s: 0x%x\n",#s,(int)(s))
 #define PrintUint(s)         DBG_PRINT("%s: %u\n",#s,(unsigned)(s))

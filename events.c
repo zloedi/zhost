@@ -27,6 +27,13 @@ void E_SetButtonOverride( eButtonOverride_t func ) {
     e_buttonOverride = func ? func : E_Stub_f;
 }
 
+static void E_DispatchJoyHat( int device, int axis, int value, int inputContext ) {
+    int button = I_JoystickHaxisToButton( device, axis );
+    if ( ! e_buttonOverride( button, value ) ) {
+        I_OnJoystickHaxis( button, value, inputContext );
+    }
+}
+
 bool_t E_DispatchEvents( int inputContext ) {
     bool_t quit = false;
     SDL_Event event;
@@ -106,20 +113,24 @@ bool_t E_DispatchEvents( int inputContext ) {
                 //I_OnControllerAxis( event.caxis );
                 break;
 
-            case SDL_JOYAXISMOTION:
-                I_OnJoystickAxis( event.jaxis.which, event.jaxis.axis, 
-                                        event.jaxis.value, inputContext );
+            case SDL_JOYAXISMOTION: {
+                    int button = I_JoystickAxisToButton( event.jaxis.which, 
+                                                            event.jaxis.axis );
+                    if ( ! e_buttonOverride( button, event.jaxis.value ) ) {
+                        I_OnJoystickAxis( button, event.jaxis.value, inputContext );
+                    }
+                }
                 break;
 
             case SDL_JOYHATMOTION:
                 if ( event.jhat.value == SDL_HAT_CENTERED ) {
-                    I_OnJoystickHaxis( event.jhat.which, 0, 0, inputContext );
-                    I_OnJoystickHaxis( event.jhat.which, 1, 0, inputContext );
+                    E_DispatchJoyHat( event.jhat.which, 0, 0, inputContext );
+                    E_DispatchJoyHat( event.jhat.which, 1, 0, inputContext );
                 } else {
-                    if ( event.jhat.value & SDL_HAT_LEFT )  I_OnJoystickHaxis( event.jhat.which, 0, I_AXIS_MIN_VALUE, inputContext );
-                    if ( event.jhat.value & SDL_HAT_RIGHT ) I_OnJoystickHaxis( event.jhat.which, 0, I_AXIS_MAX_VALUE, inputContext );
-                    if ( event.jhat.value & SDL_HAT_UP )    I_OnJoystickHaxis( event.jhat.which, 1, I_AXIS_MIN_VALUE, inputContext );
-                    if ( event.jhat.value & SDL_HAT_DOWN )  I_OnJoystickHaxis( event.jhat.which, 1, I_AXIS_MAX_VALUE, inputContext );
+                    if ( event.jhat.value & SDL_HAT_LEFT )  E_DispatchJoyHat( event.jhat.which, 0, I_AXIS_MIN_VALUE, inputContext );
+                    if ( event.jhat.value & SDL_HAT_RIGHT ) E_DispatchJoyHat( event.jhat.which, 0, I_AXIS_MAX_VALUE, inputContext );
+                    if ( event.jhat.value & SDL_HAT_UP )    E_DispatchJoyHat( event.jhat.which, 1, I_AXIS_MIN_VALUE, inputContext );
+                    if ( event.jhat.value & SDL_HAT_DOWN )  E_DispatchJoyHat( event.jhat.which, 1, I_AXIS_MAX_VALUE, inputContext );
                 }
                 break;
 

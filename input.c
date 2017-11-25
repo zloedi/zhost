@@ -301,8 +301,11 @@ void I_OnJoystickButton( int code, bool_t down, int context ) {
     I_TokenizeAndExecute( code, context, down, I_AXIS_MAX_VALUE );
 }
 
-void I_OnJoystickHaxis( int device, int axis, int value, int context ) {
-    int code = IB_JOY_HAXES + device * 2 + axis;
+int I_JoystickHaxisToButton( int device, int axis ) {
+    return IB_JOY_HAXES + device * 2 + axis;
+}
+
+void I_OnJoystickHaxis( int code, int value, int context ) {
     I_TokenizeAndExecute( code, context, value != 0, value );
 }
 
@@ -310,17 +313,20 @@ void I_SetJoystickDeadZone( int val ) {
     i_joystickDeadZone = val;
 }
 
-void I_OnJoystickAxis( int device, int axis, int value, int context ) {
+int I_JoystickAxisToButton( int device, int axis ) {
     int code = IB_NONE;
     if ( device >= I_MAX_JOYSTICKS ) {
-        CON_Printf( "I_OnJoystickAxis: device %d is out of range\n", device );
-        return;
+        CON_Printf( "I_JoystickAxisToButton: device %d is out of range\n", device );
+        return code;
     }
     if ( axis >= I_MAX_AXES ) {
-        CON_Printf( "I_OnJoystickAxis: axis %d is out of range\n", axis );
-        return;
+        CON_Printf( "I_JoystickAxisToButton: axis %d is out of range\n", axis );
+        return code;
     }
-    code = IB_JOY_AXES + device * I_MAX_AXES + axis;
+    return IB_JOY_AXES + device * I_MAX_AXES + axis;
+}
+
+void I_OnJoystickAxis( int code, int value, int context ) {
     int deadZone = Clampi( i_joystickDeadZone, 0, I_AXIS_MAX_VALUE * 90 / 100 );
     bool_t engage = abs( value ) > deadZone;
     I_TokenizeAndExecute( code, context, engage, value );
