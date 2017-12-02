@@ -1,6 +1,6 @@
 #include "zhost.h"
 
-static bool_t E_Stub_f( int button, bool_t down ) {
+static bool_t E_Stub_f( int device, int button, bool_t down ) {
     return false;
 }
 
@@ -16,11 +16,12 @@ static void E_DispatchKey( int sdlCode, int button, bool_t down, int inputContex
     //if ( WG_OnKeyboard( sdlCode, ch, down ) )
     //  return;
     // application specific callback
-    if ( e_buttonOverride( button, down ) ) {
+    // mouse and keyboard are always device 0
+    if ( e_buttonOverride( 0, button, down ) ) {
         return;
     }
     // command button bindings
-    I_OnButton( button, down, inputContext );
+    I_OnMKButton( button, down, inputContext );
 }
 
 void E_SetButtonOverride( eButtonOverride_t func ) {
@@ -28,9 +29,10 @@ void E_SetButtonOverride( eButtonOverride_t func ) {
 }
 
 static void E_DispatchJoyHat( int device, int axis, int value, int inputContext ) {
-    int button = I_JoystickHaxisToButton( device, axis );
-    if ( ! e_buttonOverride( button, value ) ) {
-        I_OnJoystickHaxis( button, value, inputContext );
+    device %= I_MAX_DEVICES;
+    int button = I_JoystickHaxisToButton( axis );
+    if ( ! e_buttonOverride( device, button, value ) ) {
+        I_OnJoystickHaxis( device, button, value, inputContext );
     }
 }
 
@@ -98,11 +100,11 @@ bool_t E_DispatchEvents( int inputContext ) {
 				break;
 				
            case SDL_CONTROLLERDEVICEADDED:
-                I_AddController( event.cdevice.which );
+                CON_Printf( "controller added\n" );
                 break;
 
             case SDL_CONTROLLERDEVICEREMOVED:
-                I_RemoveController( event.cdevice.which );
+                CON_Printf( "controller removed\n" );
                 break;
 
             case SDL_CONTROLLERBUTTONDOWN:
@@ -114,10 +116,10 @@ bool_t E_DispatchEvents( int inputContext ) {
                 break;
 
             case SDL_JOYAXISMOTION: {
-                    int button = I_JoystickAxisToButton( event.jaxis.which, 
-                                                            event.jaxis.axis );
-                    if ( ! e_buttonOverride( button, event.jaxis.value ) ) {
-                        I_OnJoystickAxis( button, event.jaxis.value, inputContext );
+                    int device = I_NormDevice( event.jaxis.which );
+                    int button = I_JoystickAxisToButton( event.jaxis.axis );
+                    if ( ! e_buttonOverride( device, button, event.jaxis.value ) ) {
+                        I_OnJoystickAxis( device, button, event.jaxis.value, inputContext );
                     }
                 }
                 break;
@@ -135,20 +137,29 @@ bool_t E_DispatchEvents( int inputContext ) {
                 break;
 
             case SDL_JOYBALLMOTION:
+                CON_Printf( "joy ball\n" );
+                break;
+
+            case SDL_JOYDEVICEREMOVED:
+                CON_Printf( "joy removed\n" );
+                I_CloseAllJoysticks();
+                I_OpenAllJoysticks();
+                break;
+            
             case SDL_JOYDEVICEADDED:
-                CON_Printf( "joy event\n" );
+                CON_Printf( "joy added\n" );
+                I_CloseAllJoysticks();
+                I_OpenAllJoysticks();
                 break;
             
             case SDL_JOYBUTTONDOWN:
             case SDL_JOYBUTTONUP: {
-                    int button = I_JoystickButtonToButton( event.jbutton.which, 
-                                    event.jbutton.button,
-                                    inputContext );
+                    int device = I_NormDevice( event.jbutton.which );
+                    int button = I_JoystickButtonToButton( event.jbutton.button,
+                                                            inputContext );
                     bool_t down = event.jbutton.state == SDL_PRESSED;
-                    if ( ! e_buttonOverride( button, down ) ) {
-                        I_OnJoystickButton( button, 
-                                            down, 
-                                            inputContext );
+                    if ( ! e_buttonOverride( device, button, down ) ) {
+                        I_OnJoystickButton( device, button, down, inputContext );
                     }
                 }
                 break;
