@@ -44,6 +44,7 @@ static inline int COM_RandInRange( int min, int max ) {
     }
     return min + COM_Rand() % ( max - min + 1 );
 }
+void COM_RandShuffle(int *array, int n);
 
 void COM_FloodFill( int x, int y, int winX0, int winY0, int winX1, int winY1, float color, int destWidth, int destHeight, float *dest );
 void COM_RasterizeRectangle8( c2_t topLeft, c2_t size, byte color, c2_t destSize, byte *dest );
