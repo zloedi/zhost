@@ -161,7 +161,7 @@ static const char *i_buttonNames[IB_NUM_BUTTONS];
 static char *i_binds[I_MAX_CONTEXTS][IB_NUM_BUTTONS];
 static v2_t i_mousePositionV;
 static c2_t i_mousePositionC;
-static SDL_Joystick *i_joysticks[I_MAX_DEVICES];
+static int i_devices[I_MAX_DEVICES];
 static int i_joystickDeadZone;
 static var_t *i_logCommands;
 
@@ -212,33 +212,71 @@ v2_t I_GetMousePositionV( void ) {
     return i_mousePositionV;
 }
 
-void I_CloseAllJoysticks( void ) {
-    for ( int i = 0; i < I_MAX_DEVICES; i++ ) {
-        if ( i_joysticks[i] ) {
-            SDL_JoystickClose( i_joysticks[i] );
-            i_joysticks[i] = NULL;
+bool_t I_OpenController( int deviceIndex ) {
+    bool_t isController = SDL_IsGameController( deviceIndex );
+    if ( isController && deviceIndex < I_MAX_DEVICES ) {
+        SDL_GameController *controller = SDL_GameControllerOpen( deviceIndex );
+        if ( controller ) {
+            SDL_Joystick *j = SDL_GameControllerGetJoystick( controller );
+            i_devices[deviceIndex] = SDL_JoystickInstanceID( j );
+            CON_Printf( "Opened game controller: %s\n", SDL_GameControllerNameForIndex( deviceIndex ) );
+            CON_Printf( "Device Index: %d\n", deviceIndex );
+            CON_Printf( "Instance Id: %d\n", i_devices[deviceIndex] );
+            CON_Printf( "Mapping: %s\n", SDL_GameControllerMapping( controller ) );
+        } else {
+            CON_Printf( "Could not open gamecontroller %i: %s\n", deviceIndex, SDL_GetError() );
         }
     }
-    CON_Printf( "Joysticks closed.\n" );
+    return isController;
 }
 
-void I_OpenAllJoysticks( void ) {
+int I_GetDeviceIndex( int instanceId ) {
+    STATIC_ASSERT( I_MAX_DEVICES <= 10, CMD_stores_deviceid_in_a_single_character );
+    for ( int i = 0; i < I_MAX_DEVICES; i++ ) {
+        if ( i_devices[i] == instanceId ) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void I_CloseDevice( int instanceId ) {
+    int index = I_GetDeviceIndex( instanceId );
+    if ( index >= 0 ) {
+        if ( SDL_IsGameController( index ) ) {
+            SDL_GameController *controller = SDL_GameControllerFromInstanceID( instanceId );
+            SDL_GameControllerClose( controller );
+        } else {
+            SDL_Joystick *joystick = SDL_JoystickFromInstanceID( instanceId );
+            SDL_JoystickClose( joystick );
+        }
+        CON_Printf( "Closed Joystick %d\n", instanceId );
+    }
+}
+
+void I_OpenJoystick( int joyIndex ) {
+    if ( joyIndex < I_MAX_DEVICES && ! SDL_IsGameController( joyIndex ) ) {
+        SDL_Joystick *p = SDL_JoystickOpen( joyIndex );
+        if ( p ) {
+            i_devices[joyIndex] = SDL_JoystickInstanceID( p );
+            CON_Printf( "Opened Joystick %d\n", joyIndex );
+            CON_Printf( "Name: %s\n", SDL_JoystickNameForIndex( joyIndex ) );
+            CON_Printf( "Instance Id: %d\n", i_devices[joyIndex] );
+            CON_Printf( "Number of Axes: %d\n", SDL_JoystickNumAxes( p ));
+            CON_Printf( "Number of Buttons: %d\n", SDL_JoystickNumButtons( p ) );
+            CON_Printf( "Number of Balls: %d\n", SDL_JoystickNumBalls( p ) );
+        } else {
+            CON_Printf( "Couldn't open Joystick %d\n", joyIndex );
+        }
+    }
+}
+
+static void I_OpenAllJoysticks( void ) {
     int numJoys = SDL_NumJoysticks();
     CON_Printf( "Num joysticks found: %d\n", numJoys );
     for( int joy = 0; joy < numJoys; ++joy ) {
-        if ( joy < I_MAX_DEVICES ) {
-            SDL_Joystick *p = SDL_JoystickOpen( joy );
-            if ( p ) {
-                CON_Printf( "Opened Joystick %d\n", joy );
-                CON_Printf( "Name: %s\n", SDL_JoystickNameForIndex( joy ) );
-                CON_Printf( "Instance Id: %d\n", SDL_JoystickInstanceID( p ) );
-                CON_Printf( "Number of Axes: %d\n", SDL_JoystickNumAxes( p ));
-                CON_Printf( "Number of Buttons: %d\n", SDL_JoystickNumButtons( p ) );
-                CON_Printf( "Number of Balls: %d\n", SDL_JoystickNumBalls( p ) );
-                i_joysticks[joy] = p;
-            } else {
-                CON_Printf( "Couldn't open Joystick %d\n", joy );
-            }
+        if ( ! I_OpenController( joy ) ) {
+            I_OpenJoystick( joy );
         }
     }
 }
@@ -662,11 +700,13 @@ void I_RegisterVars( void ) {
 }
 
 void I_Init( void ) {
+    for ( int i = 0; i < I_MAX_DEVICES; i++ ) {
+        i_devices[i] = -1;
+    }
     I_OpenAllJoysticks();
 }
 
 void I_Done( void ) {
-    I_CloseAllJoysticks();
     int i, j;
     for ( j = 0; j < I_MAX_CONTEXTS; j++ ) {
         for ( i = 0; i < IB_NUM_BUTTONS; i++ ) {

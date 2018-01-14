@@ -100,23 +100,36 @@ bool_t E_DispatchEvents( int inputContext ) {
 				break;
 				
            case SDL_CONTROLLERDEVICEADDED:
-                CON_Printf( "controller added\n" );
+                I_OpenController( event.cdevice.which );
                 break;
 
             case SDL_CONTROLLERDEVICEREMOVED:
-                CON_Printf( "controller removed\n" );
+                I_CloseDevice( event.cdevice.which );
                 break;
 
             case SDL_CONTROLLERBUTTONDOWN:
-            case SDL_CONTROLLERBUTTONUP:
+            case SDL_CONTROLLERBUTTONUP: {
+                    int device = I_GetDeviceIndex( event.cbutton.which );
+                    int button = I_JoystickButtonToButton( event.cbutton.button,
+                                                            inputContext );
+                    bool_t down = event.cbutton.state == SDL_PRESSED;
+                    if ( ! e_buttonOverride( device, button, down ) ) {
+                        I_OnJoystickButton( device, button, down, inputContext );
+                    }
+                }
                 break;
 
-            case SDL_CONTROLLERAXISMOTION:
-                //I_OnControllerAxis( event.caxis );
+            case SDL_CONTROLLERAXISMOTION: {
+                    int device = I_GetDeviceIndex( event.caxis.which );
+                    int button = I_JoystickAxisToButton( event.caxis.axis );
+                    if ( ! e_buttonOverride( device, button, event.caxis.value ) ) {
+                        I_OnJoystickAxis( device, button, event.caxis.value, inputContext );
+                    }
+                }
                 break;
 
             case SDL_JOYAXISMOTION: {
-                    int device = I_NormDevice( event.jaxis.which );
+                    int device = I_GetDeviceIndex( event.jaxis.which );
                     int button = I_JoystickAxisToButton( event.jaxis.axis );
                     if ( ! e_buttonOverride( device, button, event.jaxis.value ) ) {
                         I_OnJoystickAxis( device, button, event.jaxis.value, inputContext );
@@ -141,20 +154,16 @@ bool_t E_DispatchEvents( int inputContext ) {
                 break;
 
             case SDL_JOYDEVICEREMOVED:
-                CON_Printf( "joy removed\n" );
-                I_CloseAllJoysticks();
-                I_OpenAllJoysticks();
+                I_CloseDevice( event.jdevice.which );
                 break;
             
             case SDL_JOYDEVICEADDED:
-                CON_Printf( "joy added\n" );
-                I_CloseAllJoysticks();
-                I_OpenAllJoysticks();
+                I_OpenJoystick( event.jdevice.which );
                 break;
             
             case SDL_JOYBUTTONDOWN:
             case SDL_JOYBUTTONUP: {
-                    int device = I_NormDevice( event.jbutton.which );
+                    int device = I_GetDeviceIndex( event.jbutton.which );
                     int button = I_JoystickButtonToButton( event.jbutton.button,
                                                             inputContext );
                     bool_t down = event.jbutton.state == SDL_PRESSED;

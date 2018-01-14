@@ -9,9 +9,11 @@ void I_UpdateMousePosition( c2_t mousePosition );
 v2_t I_GetMousePositionV( void );
 c2_t I_GetMousePositionC( void );
 int I_JoystickButtonToButton( int button, int context );
-void I_CloseAllJoysticks( void );
-void I_OpenAllJoysticks( void );
+bool_t I_OpenController( int controllerIndex );
+void I_OpenJoystick( int joyIndex );
 bool_t I_IsJoystickCode( int button );
+void I_CloseDevice( int instanceId );
+int I_GetDeviceIndex( int instanceId );
 void I_SetJoystickDeadZone( int val );
 void I_OnJoystickButton( int device, int code, bool_t down, int context );
 int I_JoystickAxisToButton( int axis );
@@ -27,8 +29,3 @@ int I_KeyToButton( int sdlKey );
 void I_RegisterVars( void );
 void I_Init( void );
 void I_Done( void );
-
-static inline int I_NormDevice( int device ) {
-    STATIC_ASSERT( I_MAX_DEVICES <= 10, CMD_stores_deviceid_in_a_single_character );
-    return device % I_MAX_DEVICES;
-}
