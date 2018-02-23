@@ -28,14 +28,6 @@ void E_SetButtonOverride( eButtonOverride_t func ) {
     e_buttonOverride = func ? func : E_Stub_f;
 }
 
-static void E_DispatchJoyHat( int device, int axis, int value, int inputContext ) {
-    device %= I_MAX_DEVICES;
-    int button = I_JoystickHaxisToButton( axis );
-    if ( ! e_buttonOverride( device, button, value ) ) {
-        I_OnJoystickHaxis( device, button, value, inputContext );
-    }
-}
-
 bool_t E_DispatchEvents( int inputContext ) {
     bool_t quit = false;
     SDL_Event event;
@@ -138,15 +130,7 @@ bool_t E_DispatchEvents( int inputContext ) {
                 break;
 
             case SDL_JOYHATMOTION:
-                if ( event.jhat.value == SDL_HAT_CENTERED ) {
-                    E_DispatchJoyHat( event.jhat.which, 0, 0, inputContext );
-                    E_DispatchJoyHat( event.jhat.which, 1, 0, inputContext );
-                } else {
-                    if ( event.jhat.value & SDL_HAT_LEFT )  E_DispatchJoyHat( event.jhat.which, 0, I_AXIS_MIN_VALUE, inputContext );
-                    if ( event.jhat.value & SDL_HAT_RIGHT ) E_DispatchJoyHat( event.jhat.which, 0, I_AXIS_MAX_VALUE, inputContext );
-                    if ( event.jhat.value & SDL_HAT_UP )    E_DispatchJoyHat( event.jhat.which, 1, I_AXIS_MIN_VALUE, inputContext );
-                    if ( event.jhat.value & SDL_HAT_DOWN )  E_DispatchJoyHat( event.jhat.which, 1, I_AXIS_MAX_VALUE, inputContext );
-                }
+                CON_Printf( "joy hat\n" );
                 break;
 
             case SDL_JOYBALLMOTION:

@@ -687,6 +687,8 @@ static void I_InitButtons( void ) {
     for ( int button = 0; button < I_MAX_BUTTONS; button++ ) {
         i_buttonNames[IB_JOY_BUTTONS + button] = vab( joyButtNames[button], I_JOY_NAME_SIZE, "joystick button %d", button );
     }
+    // FIXME: these get wrong controller id when used in events
+    // FIXME: are we using them at all
     i_buttonNames[IB_JOY_HORZ_HAXIS] = "joystick hat horizontal";
     i_buttonNames[IB_JOY_VERT_HAXIS] = "joystick hat vertical";
 
