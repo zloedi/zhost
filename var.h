@@ -5,6 +5,8 @@ typedef enum {
 
 typedef struct var_s var_t;
 
+void VAR_SetCFGVersion( int version );
+
 float VAR_Num( const var_t *var );
 const char* VAR_String( const var_t *var );
 const char* VAR_Name( const var_t *var );

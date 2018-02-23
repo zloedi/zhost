@@ -1,6 +1,6 @@
 #include "zhost.h"
 
-static const int var_cfgVersion = 100;
+static int var_cfgVersion;
 
 struct var_s {
     struct var_s *next;
@@ -13,6 +13,10 @@ struct var_s {
 };
 
 var_t *vars;
+
+void VAR_SetCFGVersion( int version ) {
+    var_cfgVersion = version;
+}
 
 float VAR_Num( const var_t *var ) {
     return var->number;
