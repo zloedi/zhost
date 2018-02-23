@@ -1,5 +1,7 @@
 #include "zhost.h"
 
+static const int var_cfgVersion = 100;
+
 struct var_s {
     struct var_s *next;
     char         *name;
@@ -92,10 +94,14 @@ var_t* VAR_Register( const char *name, const char *value ) {
     return VAR_RegisterFlags( name, value, 0 );
 }
 
+static const char* VAR_GetCFGPath( void ) {
+    return va( "%sdefault_ver%d.cfg", SYS_PrefsDir(), var_cfgVersion );
+}
+
 void VAR_StoreCfg( void ) {
     var_t  *var;
-    FILE   *f;
-    char   *path = va( "%sdefault.cfg", SYS_PrefsDir() );
+    FILE *f;
+    const char *path = VAR_GetCFGPath();
 
     f = fopen( path, "wb" );
     if ( ! f ) {
@@ -146,7 +152,7 @@ static const char* VAR_GetLine( const char *data, char *line ) {
 }
 
 void VAR_ReadCfg( void ) {
-    char *path = va( "%sdefault.cfg", SYS_PrefsDir() );
+    const char *path = VAR_GetCFGPath();
     char *buffer;
     const char *data;
     char line[VA_SIZE];
