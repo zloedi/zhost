@@ -29,12 +29,8 @@ void SYS_ErrorBox( const char *fmt, ... ) {
     SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_WARNING, "Error!", buf, NULL );
 }
 
-static int SYS_Milliseconds( void ) {
-    return SDL_GetTicks();
-}
-
 int SYS_SampleTime( void ) {
-    sys_realTime = SYS_Milliseconds();
+    sys_realTime = SDL_GetTicks();
     return sys_realTime;
 }
 
