@@ -75,6 +75,11 @@ typedef union {
     };
 } v2_t;
 
+typedef struct {
+    v2_t pos;
+    v2_t size;
+} v2rect_t;
+
 static v2_t v2zero = { { 0, 0 } };
 static v2_t v2one = { { 1, 1 } };
 
@@ -457,8 +462,12 @@ static inline void DbgPrintToStdout( const char *fmt, ... ) {
     fflush( stdout );
 }
 
+#ifndef COM_PRINTF
+#define COM_PRINTF DbgPrintToStdout
+#endif
+
 #ifndef DBG_PRINT
-#define DBG_PRINT DbgPrintToStdout
+#define DBG_PRINT COM_PRINTF
 #endif
 
 static inline void DbgDump( const void *mem, size_t numBytes ) {

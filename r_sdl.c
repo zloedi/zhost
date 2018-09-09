@@ -146,6 +146,7 @@ static byte* R_ConvertTextureToRGBA( const byte* src, c2_t srcSz, int srcBytesPe
 
 SDL_Texture* R_CreateStaticTexFromBitmap( const byte *bitmap, c2_t bitmapSize, int bytesPerPixel ) {
     SDL_Texture* result;
+    SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "0" );
     result = SDL_CreateTexture( r_renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STATIC, 
                                                   bitmapSize.x, bitmapSize.y );
     if ( bytesPerPixel == 4 ) {
@@ -230,8 +231,8 @@ const char* R_ImagePath( const char *pathToImage ) {
     return va( "%sdata/%s", SYS_BaseDir(), pathToImage );
 }
 
-byte* R_LoadImageRaw( const char *pathToImage, c2_t *sz, int *n, int bytesPerPixel ) {
-    byte *data = stbi_load( R_ImagePath( pathToImage ), &sz->x, &sz->y, n, bytesPerPixel );
+byte* R_LoadImageRaw( const char *pathToImage, c2_t *sz, int *n, int forcedBPP ) {
+    byte *data = stbi_load( R_ImagePath( pathToImage ), &sz->x, &sz->y, n, forcedBPP );
     // ... process data if not NULL ...
     // ... x = width, y = height, n = # 8-bit components per pixel ...
     // ... replace '0' with '1'..'4' to force that many components per pixel

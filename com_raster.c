@@ -1,4 +1,88 @@
 #include "common.h"
+#define STB_RECT_PACK_IMPLEMENTATION
+#include "stb_rect_pack.h"
+
+static byte com_qm[4 * 8]  = {
+    0x00, 0xff, 0xff, 0x00,
+    0xff, 0x00, 0x00, 0xff,
+    0xff, 0x00, 0x00, 0xff,
+    0x00, 0x00, 0xff, 0x00,
+    0x00, 0x00, 0xff, 0x00,
+    0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0xff, 0x00,
+    0x00, 0x00, 0x00, 0x00,
+};
+
+const bitmap_t com_questionBitmap = { 
+    .sizeInPixels = {.x = 4, .y = 8},
+    .bytesPerPixel = 1,
+    .bits = com_qm,
+};
+
+static bool_t COM_PackRects( stbrp_rect *rects, int numRects, c2_t *ioAtlasSize ) {
+    c2_t atlasSize = *ioAtlasSize;
+    for ( int i = 0; i < 10; i++ ) {
+        stbrp_context context = {0};
+        int numNodes = atlasSize.x;
+        stbrp_node nodes[numNodes];
+        stbrp_init_target( &context, atlasSize.x, atlasSize.y, nodes, numNodes );
+        if ( stbrp_pack_rects( &context, rects, numRects ) ) {
+            COM_PRINTF( "Packed all atlas rects. Atlas size: %d,%d\n", atlasSize.x, atlasSize.y );
+            *ioAtlasSize = atlasSize;
+            return true;
+        }
+        atlasSize = c2Scale( atlasSize, 2 );
+    }
+    COM_PRINTF( "ERROR: COM_PackRects: Failed to pack atlas rects\n" );
+    *ioAtlasSize = c2zero;
+    return false;
+} 
+
+void COM_CopyBitmap( byte *src, c2_t srcSize, int srcBytesPerPixel, 
+                    byte *dst, c2_t dstSize, c2_t copyOrigin, int dstBytesPerPixel ) {
+    int spitch = srcSize.x * srcBytesPerPixel;
+    int dpitch = dstSize.x * dstBytesPerPixel;
+    if ( srcBytesPerPixel == dstBytesPerPixel ) {
+        for ( int i = 0, y = 0; y < srcSize.y; y++ ) {
+            int start = copyOrigin.x + y * dpitch;
+            for ( int x = 0; x < spitch; i++, x++ ) {
+                dst[start + x] = src[i];
+            }
+        }
+    } else {
+        // FIXME: implement!!
+        COM_PRINTF( "ERROR: COM_CopyBitmap: unsupported bytes per pixel format mismatch\n" );
+    }
+}
+
+bitmap_t COM_PackBitmaps( const bitmap_t *bitmaps, int numBitmaps, int targetBytesPerPixel, 
+                            c2_t *ioPackedBitmapCoords ) {
+    bitmap_t atlas = com_questionBitmap;
+    stbrp_rect *rects = A_MallocZero( numBitmaps * sizeof( *rects ) );
+    for ( int i = 0; i < numBitmaps; i++ ) {
+        const bitmap_t *bitmap = &bitmaps[i];
+        stbrp_rect r = {
+            .id = i,
+            .w = bitmap->sizeInPixels.x,
+            .h = bitmap->sizeInPixels.y,
+        };
+        rects[i] = r;
+    }
+    atlas.sizeInPixels = c2one;
+    if ( COM_PackRects( rects, numBitmaps, &atlas.sizeInPixels ) ) {
+        atlas.bits = A_MallocZero( c2MulComps( atlas.sizeInPixels ) );
+        for ( int i = 0; i < numBitmaps; i++ ) {
+            const bitmap_t *bitmap = &bitmaps[i];
+            stbrp_rect *r = &rects[i];
+            c2_t originInAtlas = c2xy( r->x, r->y );
+            COM_CopyBitmap( bitmap->bits, bitmap->sizeInPixels, bitmap->bytesPerPixel, 
+                            atlas.bits, atlas.sizeInPixels, originInAtlas, atlas.bytesPerPixel );
+            ioPackedBitmapCoords[i] = originInAtlas;
+        }
+    }
+    A_Free( rects );
+    return atlas;
+}
 
 // FIXME: these are lifted from the net, clean them up
 

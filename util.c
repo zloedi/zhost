@@ -51,7 +51,10 @@ void UT_Init( const char *appName,
     I_Init();
 
     // some parts of the console need a working renderer
+    R_FrameBegin();
     CON_Start();
+    CON_Frame();
+    R_FrameEnd();
 
     // app specific init
     SAFE_CALL( init );
@@ -60,7 +63,6 @@ void UT_Init( const char *appName,
 // sample loop, write your own if you need more control
 void UT_Loop( void(*frame)( void ), int inputContext ) {
     bool_t quit = false;
-    SYS_SampleTime();
     do {
         quit = E_DispatchEvents( inputContext );
         R_FrameBegin();

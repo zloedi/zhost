@@ -46,5 +46,15 @@ static inline int COM_RandInRange( int min, int max ) {
 }
 void COM_RandShuffle(int *array, int n);
 
+typedef struct {
+    c2_t sizeInPixels;
+    int bytesPerPixel;
+    byte *bits;
+} bitmap_t;
+
+extern const bitmap_t com_questionBitmap;
+
 void COM_FloodFill( int x, int y, int winX0, int winY0, int winX1, int winY1, float color, int destWidth, int destHeight, float *dest );
 void COM_RasterizeRectangle8( c2_t topLeft, c2_t size, byte color, c2_t destSize, byte *dest );
+bitmap_t COM_PackBitmaps( const bitmap_t *bitmaps, int numBitmaps, int targetBytesPerPixel, 
+                            c2_t *ioPackedBitmapCoords );
