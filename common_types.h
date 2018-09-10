@@ -454,16 +454,20 @@ static inline c2_t c2Power2RoundUp( c2_t c ) {
     return c2xy( Power2RoundUp( c.x ), Power2RoundUp( c.y ) );
 }
 
-static inline void DbgPrintToStdout( const char *fmt, ... ) {
+static inline int DbgPrintToStdout( const char *fmt, ... ) {
     va_list argptr;
     va_start( argptr, fmt );
-    vfprintf( stdout, fmt, argptr );
+    int result = vfprintf( stdout, fmt, argptr );
     va_end (argptr);
     fflush( stdout );
+    return result;
 }
 
 #ifndef COM_PRINTF
 #define COM_PRINTF DbgPrintToStdout
+#else
+// shut up compiler
+int COM_PRINTF( const char *fmt, ... );
 #endif
 
 #ifndef DBG_PRINT

@@ -2,6 +2,7 @@
 *.swo
 *.exe
 *.dll
+gamecontrollerdb.txt
 !3rdparty/**/*.dll
 vim_session_*
 zhost_dbg
