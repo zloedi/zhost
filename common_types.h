@@ -67,6 +67,22 @@ static inline color_t colorLerp( color_t from, color_t to, float t ) {
     return result;
 }
 
+static inline float Maxf( float a, float b ) {
+    return a > b ? a : b;
+}
+
+static inline float Minf( float a, float b ) {
+    return a < b ? a : b;
+}
+
+static inline float Clampf( float v, float min, float max ) {
+    return Maxf( min, Minf( v, max ) );
+}
+
+static inline float RadToDeg( float angleRadians ) {
+    return angleRadians * M_PI / 180;
+}
+
 typedef union {
     float a[2];
 
@@ -80,8 +96,8 @@ typedef struct {
     v2_t size;
 } v2rect_t;
 
-static v2_t v2zero = { { 0, 0 } };
-static v2_t v2one = { { 1, 1 } };
+static const v2_t v2zero = { { 0, 0 } };
+static const v2_t v2one = { { 1, 1 } };
 
 static inline v2_t warnDisabler( void ) {
     return v2one;
@@ -136,8 +152,12 @@ static inline v2_t v2Lerp( v2_t from, v2_t to, float t ) {
     return result;
 }
 
+static inline float v2SqLen( v2_t v ) {
+    return v2Dot( v, v );
+}
+
 static inline float v2Len( v2_t v ) {
-    return sqrtf( v2Dot( v, v ) );
+    return sqrtf( v2SqLen( v ) );
 }
 
 static inline v2_t v2Norm( v2_t v ) {
@@ -185,6 +205,10 @@ static inline float v2SqDistToPoint( v2_t a, v2_t b ) {
 
 static inline float v2Dist( v2_t a, v2_t b ) {
     return sqrtf( v2SqDistToPoint( a, b ) );
+}
+
+static inline v2_t v2Clamp( v2_t v, v2_t min, v2_t max ) {
+    return v2xy( Clampf( v.x, min.x, max.x ), Clampf( v.y, min.y, max.y ) );
 }
 
 // Returns the squared distance between point c and segment ab
@@ -292,18 +316,6 @@ static inline int Min3i( int a, int b, int c ) {
 
 static inline int Clampi( int v, int min, int max ) {
     return Maxi( min, Mini( v, max ) );
-}
-
-static inline float Maxf( float a, float b ) {
-    return a > b ? a : b;
-}
-
-static inline float Minf( float a, float b ) {
-    return a < b ? a : b;
-}
-
-static inline float Clampf( float v, float min, float max ) {
-    return Maxf( min, Minf( v, max ) );
 }
 
 static inline int Power2RoundUp( int v ) {

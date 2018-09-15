@@ -341,12 +341,14 @@ void R_DBGLineBegin( v2_t start ) {
 }
 
 void R_DBGLineTo( v2_t pt ) {
-    SDL_SetRenderDrawBlendMode( r_renderer, SDL_BLENDMODE_BLEND );
-    SDL_SetRenderDrawColor( r_renderer,
-            ( Uint8 )( r_color.r * 255 ), 
-            ( Uint8 )( r_color.g * 255 ),
-            ( Uint8 )( r_color.b * 255 ),
-            ( Uint8 )( r_color.alpha * 255 ) );
     SDL_RenderDrawLine( r_renderer, r_dbgLinePt.x, r_dbgLinePt.y, pt.x, pt.y );
     r_dbgLinePt = pt;
+}
+
+void R_DBGAABB( v2_t min, v2_t max ) {
+    R_DBGLineBegin( min );
+    R_DBGLineTo( v2xy( max.x, min.y ) );
+    R_DBGLineTo( max );
+    R_DBGLineTo( v2xy( min.x, max.y ) );
+    R_DBGLineTo( min );
 }

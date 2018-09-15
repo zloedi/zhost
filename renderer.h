@@ -44,7 +44,8 @@ void R_ShowCursor( bool_t show );
 void R_DBGLine( v2_t start, v2_t end );
 void R_DBGLineBegin( v2_t start );
 void R_DBGLineTo( v2_t pt );
+void R_DBGAABB( v2_t min, v2_t max );
 
-SDL_Texture* R_CreateStaticTexFromBitmap( const byte *bitmap, c2_t bitmapSize, int bytesPerPixel ) ;
+SDL_Texture* R_CreateStaticTexFromBitmap( const byte *bitmap, c2_t bitmapSize, int bytesPerPixel );
 SDL_Texture* R_FallbackTexture( void );
 SDL_Renderer *r_renderer;
