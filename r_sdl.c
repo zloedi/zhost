@@ -352,3 +352,17 @@ void R_DBGAABB( v2_t min, v2_t max ) {
     R_DBGLineTo( v2xy( min.x, max.y ) );
     R_DBGLineTo( min );
 }
+
+void R_DBGVector( v2_t origin, v2_t vector ) {
+    R_DBGLineBegin( origin );
+    v2_t tip = v2Add( origin, vector );
+    R_DBGLineTo( tip );
+    float tipSize = v2Len( vector ) / 5;
+    v2_t n = v2Norm( vector );
+    v2_t pn = v2Norm( v2Perp( n ) );
+    v2_t v = v2Sub( tip, v2Scale( n, tipSize ) );
+    v2_t spn = v2Scale( pn, tipSize * 0.5f );
+    R_DBGLineBegin( v2Add( v, spn ) );
+    R_DBGLineTo( tip );
+    R_DBGLineTo( v2Sub( v, spn ) );
+}
