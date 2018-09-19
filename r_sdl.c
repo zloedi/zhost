@@ -6,6 +6,12 @@
 #define STBI_FREE A_Free
 #include "stb_image.h"
 
+#define R_MAX_TEXTURES 256
+#define MIN_WINDOW_WIDTH 800
+#define MAX_WINDOW_WIDTH (4*1024)
+#define MIN_WINDOW_HEIGHT 600
+#define MAX_WINDOW_HEIGHT (4*1024)
+
 static var_t *r_windowWidth;
 static var_t *r_windowHeight;
 static v2_t r_windowSize;
@@ -18,12 +24,18 @@ struct rImage_s {
 
 rImage_t *r_fallbackTexture;
 
-#define R_MAX_TEXTURES 256
-
 static SDL_Window *r_window;
 static rImage_t *r_images;
 static int r_numImages;
 static color_t r_color;
+
+typedef struct {
+    bool_t isStart;
+    v2_t position;
+    color_t color;
+} rDBGPoint_t;
+
+static rDBGPoint_t *r_DBGPoints;
 
 SDL_Renderer *r_renderer;
 
@@ -203,12 +215,26 @@ void R_FrameBegin( void ) {
     SDL_RenderClear( r_renderer );
 }
 
-#define MIN_WINDOW_WIDTH 800
-#define MAX_WINDOW_WIDTH (4*1024)
-#define MIN_WINDOW_HEIGHT 600
-#define MAX_WINDOW_HEIGHT (4*1024)
-
 void R_FrameEnd() {
+    int n = sb_count( r_DBGPoints );
+    int prev = 0;
+    for ( int i = 0; i < n; i++ ) {
+        rDBGPoint_t pt = r_DBGPoints[i];
+        if ( pt.isStart ) {
+            SDL_SetRenderDrawColor( r_renderer, 
+                                    pt.color.r * 255, 
+                                    pt.color.g * 255, 
+                                    pt.color.b * 255, 
+                                    pt.color.alpha * 255 );
+        } else {
+            rDBGPoint_t prevPt = r_DBGPoints[prev];
+            SDL_RenderDrawLine( r_renderer, prevPt.position.x, prevPt.position.y,
+                                            pt.position.x, pt.position.y );
+        }
+        prev = i;
+    }
+    sb_free( r_DBGPoints );
+    r_DBGPoints = NULL;
     SDL_RenderPresent( r_renderer );
     if ( VAR_Changed( r_windowWidth ) || VAR_Changed( r_windowHeight ) ) {
         SDL_SetWindowSize( r_window,
@@ -329,20 +355,29 @@ void R_Init( void ) {
 
 //=============================================================================================
 
-static v2_t r_dbgLinePt;
-
 void R_DBGLine( v2_t start, v2_t end ) {
     R_DBGLineBegin( start );
     R_DBGLineTo( end );
 }
 
 void R_DBGLineBegin( v2_t start ) {
-    r_dbgLinePt = start;
+    R_DBGLineBeginColor( start, colWhite );
 }
 
-void R_DBGLineTo( v2_t pt ) {
-    SDL_RenderDrawLine( r_renderer, r_dbgLinePt.x, r_dbgLinePt.y, pt.x, pt.y );
-    r_dbgLinePt = pt;
+void R_DBGLineBeginColor( v2_t start, color_t color ) {
+    rDBGPoint_t pt = {
+        .color = color,
+        .isStart = true,
+        .position = start,
+    };
+    sb_push( r_DBGPoints, pt );
+}
+
+void R_DBGLineTo( v2_t pos ) {
+    rDBGPoint_t pt = {
+        .position = pos,
+    };
+    sb_push( r_DBGPoints, pt );
 }
 
 void R_DBGAABB( v2_t min, v2_t max ) {
@@ -354,10 +389,14 @@ void R_DBGAABB( v2_t min, v2_t max ) {
 }
 
 void R_DBGVector( v2_t origin, v2_t vector ) {
+    R_DBGVectorColor( origin, vector, colWhite );
+}
+
+void R_DBGVectorColor( v2_t origin, v2_t vector, color_t color ) {
     float sqSize = v2SqLen( vector );
     if ( sqSize > 0.0001f ) {
         float len = sqrtf( sqSize );
-        R_DBGLineBegin( origin );
+        R_DBGLineBeginColor( origin, color );
         v2_t tip = v2Add( origin, vector );
         R_DBGLineTo( tip );
         float tipSize = len / 5;

@@ -36,11 +36,11 @@ void  A_Free( void *ptr );
 
 //=======================================================================================================
 
-#define stb_sb_free(a)         ((a) ? A_Free(stb__sbraw(a)),0 : 0)
-#define stb_sb_push(a,v)       (stb__sbmaybegrow(a,1), (a)[stb__sbn(a)++] = (v))
-#define stb_sb_count(a)        ((a) ? stb__sbn(a) : 0)
-#define stb_sb_add(a,n)        (stb__sbmaybegrow(a,n), stb__sbn(a)+=(n), &(a)[stb__sbn(a)-(n)])
-#define stb_sb_last(a)         ((a)[stb__sbn(a)-1])
+#define sb_free(a)         ((a) ? A_Free(stb__sbraw(a)),0 : 0)
+#define sb_push(a,v)       (stb__sbmaybegrow(a,1), (a)[stb__sbn(a)++] = (v))
+#define sb_count(a)        ((a) ? stb__sbn(a) : 0)
+#define sb_add(a,n)        (stb__sbmaybegrow(a,n), stb__sbn(a)+=(n), &(a)[stb__sbn(a)-(n)])
+#define sb_last(a)         ((a)[stb__sbn(a)-1])
 
 #define stb__sbraw(a) ((size_t *) (a) - 2)
 #define stb__sbm(a)   stb__sbraw(a)[0]
@@ -53,7 +53,7 @@ void  A_Free( void *ptr );
 static inline void * stb__sbgrowf(void *arr, size_t increment, size_t itemsize)
 {
    size_t dbl_cur = arr ? 2*stb__sbm(arr) : 0;
-   size_t min_needed = stb_sb_count(arr) + increment;
+   size_t min_needed = sb_count(arr) + increment;
    size_t m = dbl_cur > min_needed ? dbl_cur : min_needed;
    size_t reallocsz = itemsize * m + sizeof(size_t)*2;
    size_t *p = (size_t *) A_Realloc(arr ? stb__sbraw(arr) : NULL, reallocsz);
