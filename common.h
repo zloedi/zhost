@@ -38,6 +38,8 @@ void COM_Split( const char *text, const char *delimiter, const char **outBefore,
 
 void COM_SRand( unsigned seed );
 int COM_Rand( void );
+float COM_RandVNI( void );
+float COM_RandUNI( void );
 static inline int COM_RandInRange( int min, int max ) {
     if ( min == max ) {
         return min;
