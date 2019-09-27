@@ -7,6 +7,27 @@ extern byte con_fontBitmap[];
 
 rImage_t *cond_fontTexture;
 
+v2_t CON_Measure( const char *str ) {
+    return v2xy( strlen( str ) * CON_SYMBOL_ADVANCEX, CON_SYMBOL_ADVANCEY );
+}
+
+void CON_DrawOnScreen( v2_t position, color_t color, const char *string ) {
+    R_ColorC( color );
+    for (int i = 0; ; i++) {
+        int c = string[i];
+        if (! c) {
+            return;
+        }
+        conSymbol_t *symbol = &con_font[c & 255];
+        R_BlendPic( position.x + symbol->left, position.y + symbol->top,
+                    symbol->width, symbol->height,
+                    symbol->st0.x, symbol->st0.y,
+                    symbol->st1.x, symbol->st1.y,
+                    cond_fontTexture );
+        position.x += CON_SYMBOL_ADVANCEX;
+    }
+}
+
 void COND_DrawChar( int x, int y, int c ) {
     conSymbol_t *symbol = &con_font[c & 255];
     if ( ! symbol->width )

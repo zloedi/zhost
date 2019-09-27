@@ -8,3 +8,5 @@ bool_t CON_OnKeyboard( int code, bool_t down );
 void CON_Toggle( bool_t fullscreen );
 int CON_Printf( const char *format, ... );
 void CON_Frame( void );
+v2_t CON_Measure( const char *str );
+void CON_DrawOnScreen( v2_t position, color_t color, const char *string );
