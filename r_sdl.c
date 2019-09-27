@@ -388,6 +388,11 @@ void R_DBGAABB( v2_t min, v2_t max ) {
     R_DBGLineTo( min );
 }
 
+void R_DBGPoint( v2_t pt ) {
+    v2_t off = v2Scale( v2one, 2 );
+    R_DBGAABB( v2Sub( pt, off ), v2Add( pt, off ) );
+}
+
 void R_DBGVector( v2_t origin, v2_t vector ) {
     R_DBGVectorColor( origin, vector, colWhite );
 }

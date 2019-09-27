@@ -46,6 +46,7 @@ void R_DBGLineBegin( v2_t start );
 void R_DBGLineBeginColor( v2_t start, color_t color );
 void R_DBGLineTo( v2_t pt );
 void R_DBGAABB( v2_t min, v2_t max );
+void R_DBGPoint( v2_t pt );
 void R_DBGVector( v2_t origin, v2_t vector );
 void R_DBGVectorColor( v2_t origin, v2_t vector, color_t color );
 
