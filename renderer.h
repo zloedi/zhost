@@ -49,6 +49,8 @@ void R_DBGAABB( v2_t min, v2_t max );
 void R_DBGPoint( v2_t pt );
 void R_DBGVector( v2_t origin, v2_t vector );
 void R_DBGVectorColor( v2_t origin, v2_t vector, color_t color );
+void R_DBGTextColor( v2_t origin, const char *str, color_t color );
+void R_DBGText( v2_t origin, const char *str );
 
 SDL_Texture* R_CreateStaticTexFromBitmap( const byte *bitmap, c2_t bitmapSize, int bytesPerPixel );
 SDL_Texture* R_FallbackTexture( void );

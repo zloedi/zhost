@@ -30,9 +30,9 @@ static int r_numImages;
 static color_t r_color;
 
 typedef struct {
-    bool_t isStart;
     v2_t position;
     color_t color;
+    char *text;
 } rDBGPoint_t;
 
 static rDBGPoint_t *r_DBGPoints;
@@ -220,16 +220,21 @@ void R_FrameEnd() {
     int prev = 0;
     for ( int i = 0; i < n; i++ ) {
         rDBGPoint_t pt = r_DBGPoints[i];
-        if ( pt.isStart ) {
-            SDL_SetRenderDrawColor( r_renderer, 
-                                    pt.color.r * 255, 
-                                    pt.color.g * 255, 
-                                    pt.color.b * 255, 
-                                    pt.color.alpha * 255 );
+        if ( pt.text ) {
+            CON_DrawOnScreen( pt.position, pt.color, pt.text );
+            A_Free( pt.text );
         } else {
-            rDBGPoint_t prevPt = r_DBGPoints[prev];
-            SDL_RenderDrawLine( r_renderer, prevPt.position.x, prevPt.position.y,
-                                            pt.position.x, pt.position.y );
+            if (pt.color.alpha > 0.000001f) {
+                SDL_SetRenderDrawColor( r_renderer, 
+                                        pt.color.r * 255, 
+                                        pt.color.g * 255, 
+                                        pt.color.b * 255, 
+                                        pt.color.alpha * 255 );
+            } else {
+                rDBGPoint_t prevPt = r_DBGPoints[prev];
+                SDL_RenderDrawLine( r_renderer, prevPt.position.x, prevPt.position.y,
+                                                pt.position.x, pt.position.y );
+            }
         }
         prev = i;
     }
@@ -367,7 +372,6 @@ void R_DBGLineBegin( v2_t start ) {
 void R_DBGLineBeginColor( v2_t start, color_t color ) {
     rDBGPoint_t pt = {
         .color = color,
-        .isStart = true,
         .position = start,
     };
     sb_push( r_DBGPoints, pt );
@@ -413,4 +417,18 @@ void R_DBGVectorColor( v2_t origin, v2_t vector, color_t color ) {
         R_DBGLineTo( tip );
         R_DBGLineTo( v2Sub( v, spn ) );
     }
+}
+
+void R_DBGTextColor( v2_t origin, const char *str, color_t color ) {
+    v2_t sz = CON_Measure( str );
+    rDBGPoint_t pt = {
+        .color = color,
+        .position = v2Sub( origin, v2xy(sz.x * 0.5f, sz.y + 5 ) ),
+        .text = A_StrDup( str ),
+    };
+    sb_push( r_DBGPoints, pt );
+}
+
+void R_DBGText( v2_t origin, const char *str ) {
+    R_DBGTextColor( origin, str, colWhite );
 }
