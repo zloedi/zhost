@@ -47,10 +47,11 @@ navFront_t NAV_CreateFront( int gridW, int gridH, int *buffer );
 void NAV_FloodMap( int origin, int maxRange, navFront_t *front, int gridW, int gridH, 
                     const int *navMap, int *floodMap );
 
-// Call this to get a path between two nodes
+// Call this to get a (partial) path between two nodes
 // outResult contains indices in grid
+// returns 1 if traced path from target to origin, 0 otherwise
 int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, int resultMaxElems, 
-                        int *outResult, int *outNumElemsWritten );
+                        int *outResult, int *outResultNumElems );
 
 #else
 
@@ -161,12 +162,12 @@ void NAV_FloodMap( int origin, int maxRange, navFront_t *front, int gridW, int g
 }
 
 int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, int resultMaxElems, 
-                    int *outResult, int *outNumElemsWritten ) {
+                    int *outResult, int *outResultNumElems ) {
     if ( resultMaxElems == 0 
             || floodMap[target] == NAV_BLOC 
             || floodMap[target] == NAV_FREE 
             || floodMap[origin] == NAV_BLOC ) {
-        *outNumElemsWritten = 0;
+        *outResultNumElems = 0;
         return 0;
     }
     const int prims[] = {
@@ -175,7 +176,7 @@ int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, int r
     // explictly push target, then start at 1
     outResult[0] = target;
     if ( floodMap[target] == NAV_BLOC ) {
-        *outNumElemsWritten = 0;
+        *outResultNumElems = 0;
         return 0;
     }
     int numElems;
@@ -205,7 +206,7 @@ int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, int r
         target = neighbours[min & 3];
         outResult[numElems] = target;
     }
-    *outNumElemsWritten = numElems;
+    *outResultNumElems = numElems;
     return target == origin;
 }
 
