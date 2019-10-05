@@ -4,18 +4,17 @@
 // Usage:
 //
 // On Init:
-// int frontBufSz = NAV_FrontBufSizeInBytes( MAP_SIDE, MAP_SIDE );
-// navFront_t front = NAV_CreateFront( MAP_SIDE, MAP_SIDE, malloc( frontBufSz ) );
-// ...
-// ...
+// int frontBufSz = NAV_FrontBufSizeInBytes( GRID_WIDTH, GRID_HEIGHT );
+// navFront_t front = NAV_CreateFront( GRID_WIDTH, GRID_HEIGHT, malloc( frontBufSz ) );
+// 
 // On Update:
-// NAV_FloodMap( origin, MAX_MOVE_RANGE, &front, MAP_SIDE, MAP_SIDE, navMap, floodMap );
+// NAV_FloodMap( origin, MAX_MOVE_RANGE, &front, GRID_WIDTH, GRID_HEIGHT, navMap, floodMap );
 // ...
-// NAV_TracePath( origin, target0, MAP_SIDE, floodMap, pathMax, path, &numTraced);
+// NAV_TracePath( origin, target0, GRID_WIDTH, floodMap, PATH_MAX_SIZE, path, &numTraced);
 // ...
-// NAV_TracePath( origin, target1, MAP_SIDE, floodMap, pathMax, path, &numTraced);
+// NAV_TracePath( origin, target1, GRID_WIDTH, floodMap, PATH_MAX_SIZE, path, &numTraced);
 // ...
-// NAV_TracePath( origin, target2, MAP_SIDE, floodMap, pathMax, path, &numTraced);
+// NAV_TracePath( origin, target2, GRID_WIDTH, floodMap, PATH_MAX_SIZE, path, &numTraced);
 // ...
 // Read the function descriptions for more
 
