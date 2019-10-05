@@ -19,7 +19,7 @@
 // ...
 // Read the function descriptions for more
 
-#define NAV_FREE 0x0fffffff
+#define NAV_FREE 0x1fffffff
 #define NAV_BLOC 0x40000000
 
 // Internal struct used to hold flood front
