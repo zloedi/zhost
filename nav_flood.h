@@ -194,10 +194,10 @@ int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, int r
             floodMap[neighbours[3]],
         };
         int scores[4] = {
-            ( floods[0] & NAV_BLOC ) | ( ( floods[0] & 0xfffffff ) << 2 ) | 0,
-            ( floods[1] & NAV_BLOC ) | ( ( floods[1] & 0xfffffff ) << 2 ) | 1,
-            ( floods[2] & NAV_BLOC ) | ( ( floods[2] & 0xfffffff ) << 2 ) | 2,
-            ( floods[3] & NAV_BLOC ) | ( ( floods[3] & 0xfffffff ) << 2 ) | 3,
+            ( floods[0] & NAV_BLOC ) | ( ( floods[0] & NAV_FREE ) << 2 ) | 0,
+            ( floods[1] & NAV_BLOC ) | ( ( floods[1] & NAV_FREE ) << 2 ) | 1,
+            ( floods[2] & NAV_BLOC ) | ( ( floods[2] & NAV_FREE ) << 2 ) | 2,
+            ( floods[3] & NAV_BLOC ) | ( ( floods[3] & NAV_FREE ) << 2 ) | 3,
         };
         int min = Min( scores[3], Min( scores[2], Min( scores[1], scores[0] ) ) );
         if ( ( min >> 2 ) >= floodMap[target]) {
