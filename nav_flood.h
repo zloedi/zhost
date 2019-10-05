@@ -175,10 +175,6 @@ int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, int r
     };
     // explictly push target, then start at 1
     outResult[0] = target;
-    if ( floodMap[target] == NAV_BLOC ) {
-        *outResultNumElems = 0;
-        return 0;
-    }
     int numElems;
     for ( numElems = 1; numElems < resultMaxElems; numElems++ ) {
         int neighbours[4] = {
