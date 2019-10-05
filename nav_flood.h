@@ -1,5 +1,23 @@
-// #define FLOOD_NAV_IMPLEMENTATION before #include "nav_flood.h" to unwrap the implementation
+// #define FLOOD_NAV_IMPLEMENTATION before #include "nav_flood.h" to unroll the implementation
 // #define NAV_FOUR_WAY before #include "nav_flood.h" for four-way flood implementation
+
+// Usage:
+//
+// On Init:
+// int frontBufSz = NAV_FrontBufSizeInBytes( MAP_SIDE, MAP_SIDE );
+// navFront_t front = NAV_CreateFront( MAP_SIDE, MAP_SIDE, malloc( frontBufSz ) );
+// ...
+// ...
+// On Update:
+// NAV_FloodMap( origin, MAX_MOVE_RANGE, &front, MAP_SIDE, MAP_SIDE, navMap, floodMap );
+// ...
+// NAV_TracePath( origin, target0, MAP_SIDE, floodMap, pathMax, path, &numTraced);
+// ...
+// NAV_TracePath( origin, target1, MAP_SIDE, floodMap, pathMax, path, &numTraced);
+// ...
+// NAV_TracePath( origin, target2, MAP_SIDE, floodMap, pathMax, path, &numTraced);
+// ...
+// Read the function descriptions for more
 
 #define NAV_FREE 0x0fffffff
 #define NAV_BLOC 0x40000000
@@ -22,6 +40,8 @@ int NAV_FrontBufSizeInBytes( int gridW, int gridH );
 // Front internals get reset on each flood
 navFront_t NAV_CreateFront( int gridW, int gridH, int *buffer );
 
+// Origin is index in grid
+// Assumes origin is clamped to grid size
 // Assumes impassable (NAV_BLOC) map borders
 // Front can be reused in the same thread
 // Create nav map i.e. like this: navMap[i] = map[i] == wall ? NAV_BLOC : NAV_FREE;
@@ -29,8 +49,9 @@ void NAV_FloodMap( int origin, int maxRange, navFront_t *front, int gridW, int g
                     const int *navMap, int *floodMap );
 
 // Call this to get a path between two nodes
-int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, int resultSize, 
-                        int *ioResult, int *outNumElemsWritten );
+// outResult contains indices in grid
+int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, int resultMaxElems, 
+                        int *outResult, int *outNumElemsWritten );
 
 #else
 
@@ -140,9 +161,9 @@ void NAV_FloodMap( int origin, int maxRange, navFront_t *front, int gridW, int g
     } while ( ! NAV_FrontIsEmpty( front ) );
 }
 
-int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, 
-                        int resultSize, int *ioResult, int *outNumElemsWritten ) {
-    if ( resultSize == 0 
+int NAV_TracePath( int origin, int target, int gridW, const int *floodMap, int resultMaxElems, 
+                    int *outResult, int *outNumElemsWritten ) {
+    if ( resultMaxElems == 0 
             || floodMap[target] == NAV_BLOC 
             || floodMap[target] == NAV_FREE 
             || floodMap[origin] == NAV_BLOC ) {
@@ -153,13 +174,13 @@ int NAV_TracePath( int origin, int target, int gridW, const int *floodMap,
         -1, -gridW, 1, gridW,
     };
     // explictly push target, then start at 1
-    ioResult[0] = target;
+    outResult[0] = target;
     if ( floodMap[target] == NAV_BLOC ) {
         *outNumElemsWritten = 0;
         return 0;
     }
     int numElems;
-    for ( numElems = 1; numElems < resultSize; numElems++ ) {
+    for ( numElems = 1; numElems < resultMaxElems; numElems++ ) {
         int neighbours[4] = {
             target + prims[0],
             target + prims[1],
@@ -183,7 +204,7 @@ int NAV_TracePath( int origin, int target, int gridW, const int *floodMap,
             break;
         }
         target = neighbours[min & 3];
-        ioResult[numElems] = target;
+        outResult[numElems] = target;
     }
     *outNumElemsWritten = numElems;
     return target == origin;
