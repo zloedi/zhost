@@ -25,19 +25,36 @@ typedef union {
     struct { float r, g, b, alpha; };
 } color_t;
 
-static const color_t colBlack = { { 0, 0, 0, 1 } };
-static const color_t colWhite = { { 1, 1, 1, 1 } };
-static const color_t colRed = { { 1, 0, 0, 1 } };
-static const color_t colGreen = { { 0, 1, 0, 1 } };
-static const color_t colBlue = { { 0, 0, 1, 1 } };
-static const color_t colYellow = { { 1, 1, 0, 1 } };
-static const color_t colCyan = { { 0, 1, 1, 1 } };
-static const color_t colMagenta = { { 1, 0, 1, 1 } };
+#define COLRGB(r,g,b) {.a ={r,g,b}}
+#define COLRGBA(r,g,b,a) {.a ={r,g,b}}
 
-static const color_t colGrayHalf = { { 0.5f, 0.5f, 0.5f, 1 } };
-static const color_t colGrayThird = { { 0.333f, 0.333f, 0.333f, 1 } };
-static const color_t colGrayQuart = { { 0.25f, 0.25f, 0.25f, 1 } };
-static const color_t colOrange = { { 1, 0.45, 0, 1 } };
+#define COL_CLEAR     {0}
+#define COL_BLACK     COLRGB(0, 0, 0)
+#define COL_WHITE     COLRGB(1, 1, 1)
+#define COL_RED       COLRGB(1, 0, 0)
+#define COL_GREEN     COLRGB(0, 1, 0)
+#define COL_BLUE      COLRGB(0, 0, 1)
+#define COL_YELLOW    COLRGB(1, 1, 0)
+#define COL_CYAN      COLRGB(0, 1, 1)
+#define COL_MAGENTA   COLRGB(1, 0, 1)
+#define COL_GRAYHALF  COLRGB(0.5f, 0.5f, 0.5f)
+#define COL_GRAYTHIRD COLRGB(0.333f, 0.333f, 0.333f)
+#define COL_GRAYQUART COLRGB(0.25f, 0.25f, 0.25f)
+#define COL_ORANGE    COLRGB(1, 0.45, 0)
+
+static const color_t colClear     = COL_CLEAR;
+static const color_t colBlack     = COL_BLACK;
+static const color_t colWhite     = COL_WHITE;
+static const color_t colRed       = COL_RED;
+static const color_t colGreen     = COL_GREEN;
+static const color_t colBlue      = COL_BLUE;
+static const color_t colYellow    = COL_YELLOW;
+static const color_t colCyan      = COL_CYAN;
+static const color_t colMagenta   = COL_MAGENTA;
+static const color_t colGrayHalf  = COL_GRAYHALF;
+static const color_t colGrayThird = COL_GRAYTHIRD;
+static const color_t colGrayQuart = COL_GRAYQUART;
+static const color_t colOrange    = COL_ORANGE;
 
 static inline color_t colorrgb( float r, float g, float b ) {
     color_t c = { { r, g, b, 1 } };
@@ -96,8 +113,10 @@ typedef struct {
     v2_t size;
 } v2rect_t;
 
-static const v2_t v2zero = { { 0, 0 } };
-static const v2_t v2one = { { 1, 1 } };
+#define V2XY(x,y) {{x,y}}
+
+static const v2_t v2zero = {0};
+static const v2_t v2one = V2XY(1,1);
 
 static inline v2_t warnDisabler( void ) {
     return v2one;
