@@ -26,21 +26,21 @@ typedef union {
 } color_t;
 
 #define COLRGB(r,g,b) {.a ={r,g,b}}
-#define COLRGBA(r,g,b,a) {.a ={r,g,b}}
+#define COLRGBA(r,g,b,a) {.a ={r,g,b,a}}
 
-#define COL_CLEAR     {0}
-#define COL_BLACK     COLRGB(0, 0, 0)
-#define COL_WHITE     COLRGB(1, 1, 1)
-#define COL_RED       COLRGB(1, 0, 0)
-#define COL_GREEN     COLRGB(0, 1, 0)
-#define COL_BLUE      COLRGB(0, 0, 1)
-#define COL_YELLOW    COLRGB(1, 1, 0)
-#define COL_CYAN      COLRGB(0, 1, 1)
-#define COL_MAGENTA   COLRGB(1, 0, 1)
-#define COL_GRAYHALF  COLRGB(0.5f, 0.5f, 0.5f)
-#define COL_GRAYTHIRD COLRGB(0.333f, 0.333f, 0.333f)
-#define COL_GRAYQUART COLRGB(0.25f, 0.25f, 0.25f)
-#define COL_ORANGE    COLRGB(1, 0.45, 0)
+#define COL_CLEAR     {{0}}
+#define COL_BLACK     COLRGB(0,0,0)
+#define COL_WHITE     COLRGB(1,1,1)
+#define COL_RED       COLRGB(1,0,0)
+#define COL_GREEN     COLRGB(0,1,0)
+#define COL_BLUE      COLRGB(0,0,1)
+#define COL_YELLOW    COLRGB(1,1,0)
+#define COL_CYAN      COLRGB(0,1,1)
+#define COL_MAGENTA   COLRGB(1,0,1)
+#define COL_GRAYHALF  COLRGB(0.5f,0.5f,0.5f)
+#define COL_GRAYTHIRD COLRGB(0.333f,0.333f,0.333f)
+#define COL_GRAYQUART COLRGB(0.25f,0.25f,0.25f)
+#define COL_ORANGE    COLRGB(1,0.45,0)
 
 static const color_t colClear     = COL_CLEAR;
 static const color_t colBlack     = COL_BLACK;
