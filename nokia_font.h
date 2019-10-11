@@ -1,8 +1,11 @@
+// This file contains the nokia-cellphone font baked in a bitmap, along with the glyphs coordinates on the bitmap.
+// The ttf could be found here: https://www.dafont.com/nokia-cellphone.font
+
 // Example usage with the SDL2 Renderer API:
 //
 // On Init: 
 //
-//    Create nokiaTexture from the font image first using SDL Texture API
+//    Create nokiaTexture from the nokia_image bitmap using the SDL Texture API
 //
 //
 // On Update:
