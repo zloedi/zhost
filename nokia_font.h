@@ -105,7 +105,7 @@ static const nokGlyph_t nokia_glyphs[256] = {
     [92 ] = {.x=28 , .y=41, .width=3, .height=7, .xoffset=0, .yoffset=1, .xadvance=4,},
     [93 ] = {.x=64 , .y=0 , .width=3, .height=8, .xoffset=0, .yoffset=1, .xadvance=4,},
     [94 ] = {.x=112, .y=47, .width=3, .height=3, .xoffset=0, .yoffset=1, .xadvance=4,},
-    [95 ] = {.x=7  , .y=57, .width=6, .height=1, .xoffset=0, .yoffset=7, .xadvance=6,},
+    [95 ] = {.x=7  , .y=57, .width=5, .height=1, .xoffset=0, .yoffset=7, .xadvance=6,},
     [96 ] = {.x=4  , .y=57, .width=2, .height=2, .xoffset=0, .yoffset=1, .xadvance=3,},
     [97 ] = {.x=73 , .y=49, .width=5, .height=5, .xoffset=0, .yoffset=3, .xadvance=6,},
     [98 ] = {.x=102, .y=24, .width=5, .height=7, .xoffset=0, .yoffset=1, .xadvance=6,},
