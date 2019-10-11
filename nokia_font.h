@@ -1,4 +1,4 @@
-// This file contains the nokia-cellphone font baked in a bitmap, along with the glyphs coordinates on the bitmap.
+// This file contains the nokia-cellphone font baked in a bitmap, along with the character coordinates inside the bitmap.
 // The ttf could be found here: https://www.dafont.com/nokia-cellphone.font
 
 // Example usage with the SDL2 Renderer API:
