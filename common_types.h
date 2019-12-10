@@ -25,7 +25,7 @@ typedef union {
     struct { float r, g, b, alpha; };
 } color_t;
 
-#define COLRGB(r,g,b) {.a ={r,g,b}}
+#define COLRGB(r,g,b) {.a ={r,g,b,1}}
 #define COLRGBA(r,g,b,a) {.a ={r,g,b,a}}
 
 #define COL_CLEAR     {{0}}
