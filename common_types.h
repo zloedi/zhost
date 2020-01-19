@@ -230,6 +230,14 @@ static inline v2_t v2Clamp( v2_t v, v2_t min, v2_t max ) {
     return v2xy( Clampf( v.x, min.x, max.x ), Clampf( v.y, min.y, max.y ) );
 }
 
+static inline v2_t v2Min( v2_t a, v2_t b ) {
+    return v2xy( Minf( a.x, b.x ), Minf( a.y, b.y ) );
+}
+
+static inline v2_t v2Max( v2_t a, v2_t b ) {
+    return v2xy( Maxf( a.x, b.x ), Maxf( a.y, b.y ) );
+}
+
 // Returns the squared distance between point c and segment ab
 static inline float v2SqDistToSegment( v2_t a, v2_t b, v2_t c ) {
     v2_t ab = v2Sub( b, a ), ac = v2Sub( c, a ), bc = v2Sub( c, b );
@@ -359,6 +367,8 @@ static inline c2_t c2xy( int x, int y ) {
     c2_t c = { { x, y } };
     return c;
 }
+
+#define C2XY(x,y) {{x,y}}
 
 static const c2_t c2zero = { .a = { 0, 0 } };
 static const c2_t c2one = { .a = { 1, 1 } };
