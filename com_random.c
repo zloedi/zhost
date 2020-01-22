@@ -220,18 +220,11 @@ float COM_RandUNI( void ) {
     return UNI;
 }
 
-#define RAND_MAX 2147483647
-void COM_RandShuffle(int *array, int n)
-{
-    if (n > 1) 
-    {
-        size_t i;
-        for (i = 0; i < n - 1; i++) 
-        {
-          size_t j = i + COM_Rand() / (RAND_MAX / (n - i) + 1);
-          int t = array[j];
-          array[j] = array[i];
-          array[i] = t;
+void COM_RandShuffle(int *array, int n) {
+    if (n > 1) {
+        for ( int i = 0; i < n - 1; i++ ) {
+            int j = ( i + COM_Rand() ) % n;
+            int t = array[j]; array[j] = array[i]; array[i] = t;
         }
     }
 }
