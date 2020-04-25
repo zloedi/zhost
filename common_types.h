@@ -549,3 +549,5 @@ static inline void DbgDump( const void *mem, size_t numBytes ) {
     char STATIC_ASSERTION__##msg[(expr)?1:-1]; \
     (void)STATIC_ASSERTION__##msg[0];          \
 }
+
+#define COUNT_OF(array) (sizeof(array)/sizeof(*(array)))
