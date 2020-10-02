@@ -1,0 +1,13 @@
+prefix=/home/keith/sandbox/mingw-port/build/zlib/dist/staged
+exec_prefix=/home/keith/sandbox/mingw-port/build/zlib/dist/staged
+libdir=/home/keith/sandbox/mingw-port/build/zlib/dist/staged/lib
+sharedlibdir=/home/keith/sandbox/mingw-port/build/zlib/dist/staged/lib
+includedir=/home/keith/sandbox/mingw-port/build/zlib/dist/staged/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.11
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}
