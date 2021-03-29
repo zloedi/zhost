@@ -54,4 +54,4 @@ void R_DBGText( v2_t origin, const char *str );
 
 SDL_Texture* R_CreateStaticTexFromBitmap( const byte *bitmap, c2_t bitmapSize, int bytesPerPixel );
 SDL_Texture* R_FallbackTexture( void );
-SDL_Renderer *r_renderer;
+extern SDL_Renderer *r_renderer;

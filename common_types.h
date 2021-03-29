@@ -97,7 +97,7 @@ static inline float Clampf( float v, float min, float max ) {
 }
 
 static inline float RadToDeg( float angleRadians ) {
-    return angleRadians * M_PI / 180;
+    return angleRadians * ( float )M_PI / 180.0f;
 }
 
 typedef union {
